@@ -16,9 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MDV_PARSER_H
-#define MDV_PARSER_H
+#ifndef MDV_FALLBACK_H
+#define MDV_FALLBACK_H
+#include <stdio.h>
+#include "MdvConfig.h"
 
-void markdown (char **mkd, int lines);
-
-#endif //MDV_PARSER_H
+#if !defined (HAVE_GETLINE)
+int getline (char **lineptr, size_t *n, FILE *stream);
+#endif //HAVE_GETLINE
+#endif //MDV_FALLBACK_H

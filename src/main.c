@@ -19,25 +19,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "display.h"
+#include "MdvConfig.h"
 
 /**
- *
- * @param argc
- * @param argv
- * @return
+ * Main function check for passed arguments and render markdown file
+ * @param argc Number of arguments
+ * @param argv String array with arguments
+ * @return 0 on success and -1 on failure
  */
 int
-main(int argc, char *argv[]) {
+main (int argc, char *argv[]) {
   /* Check if markdown file passed as argument */
   if (argc != 2) {
-    fprintf(stderr, "usage: %s markdown_file\n", argv[0]);
-    exit(EXIT_FAILURE);
+    fprintf (stderr, "%s Version %d.%d\n",
+             argv[0],
+             MDV_VERSION_MAJOR,
+             MDV_VERSION_MINOR);
+    fprintf (stderr, "usage: %s markdown_file\n", argv[0]);
+    exit (EXIT_FAILURE);
   }
 
   /* initialize ncurses */
-  initialize(argv[1]);
+  initialize (argv[1]);
   /* performing markdown parsing */
-  display();
+  display ();
   /* Wait for user input */
-  handle_input();
+  handle_input ();
 }

@@ -1,7 +1,3 @@
-//
-// Created by padi on 12/7/16.
-//
-
 /* getline.c -- Replacement for GNU C library function getline
 
 Copyright (C) 1993 Free Software Foundation, Inc.
@@ -24,7 +20,9 @@ General Public License for more details.  */
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
+#include "MdvConfig.h"
 
+#if !defined (HAVE_GETLINE)
 /* Always add at least this many bytes when extending the buffer.  */
 #define MIN_CHUNK 64
 
@@ -132,10 +130,11 @@ getstr (lineptr, n, stream, terminator, offset)
 }
 
 int
-fgetline (lineptr, n, stream)
+getline (lineptr, n, stream)
         char **lineptr;
         size_t *n;
         FILE *stream;
 {
     return getstr (lineptr, n, stream, '\n', 0);
 }
+#endif //HAVE_GETLINE

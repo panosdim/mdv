@@ -1,11 +1,25 @@
-//
-// Created by padi on 12/7/16.
-//
+/*
+ * mdv - Colorful viewer of markdown files in terminal
+ * Copyright (C) 2016  Panagiotis Dimopoulos
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#ifndef MDP_FILE_H
-#define MDP_FILE_H
+#ifndef MDV_FILE_H
+#define MDV_FILE_H
 
-unsigned long cnt_col_lines (FILE *fp, int cols);
-char **read_lines (FILE *fp, int *lines);
+unsigned long fcntlines (FILE *fp, int cols);
+char **freadlines (FILE *fp, int *lines);
 
-#endif //MDP_FILE_H
+#endif //MDV_FILE_H
