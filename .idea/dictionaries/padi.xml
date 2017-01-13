@@ -2,8 +2,13 @@
   <dictionary name="padi">
     <words>
       <w>dimopoulos</w>
+      <w>fcntlines</w>
+      <w>freadlines</w>
+      <w>idheader</w>
       <w>ncurses</w>
       <w>panagiotis</w>
+      <w>setext</w>
+      <w>settext</w>
     </words>
   </dictionary>
 </component>

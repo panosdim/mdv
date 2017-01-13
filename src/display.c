@@ -48,11 +48,11 @@ initialize (char *mdfile) {
   keypad (stdscr, TRUE);
 
   /* Check if terminal support colours */
-  if (has_colors () == FALSE) {
-    endwin ();
-    fprintf (stderr, "Your terminal does not support color\n");
-    exit (EXIT_FAILURE);
-  }
+//  if (has_colors () == FALSE) {
+//    endwin ();
+//    fprintf (stderr, "Your terminal does not support color\n");
+//    exit (EXIT_FAILURE);
+//  }
 
   /* Initialize color pairs */
   start_color ();

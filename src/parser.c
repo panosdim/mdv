@@ -18,81 +18,89 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <ncurses.h>
 #include <string.h>
 #include "display.h"
 
+#define INDENT_SPACES 4
+#define NEXT_LIST_PAR 4
+#define LIST_INDENT_SPC 2
+#define HEADER_SETEXT_1 1
+#define HEADER_SETEXT_2 2
+
 static void parse_atx_headers (char *header);
-static void parse_emphasis (char *line);
+static bool parse_lists (char **mkd, int ln);
 static void parse_marks (char *line);
-static void parse_list (char *list);
-static int identify_headers (char *line);
+static bool parse_headers (char **mkd, int ln);
+static void parse_setext_headers (char *header, int level);
 
-enum {
-  NO_HEADER = 1,
-  HEADER_ATX = 2,
-  HEADER_SETEXT_1 = 3,
-  HEADER_SETEXT_2 = 4
-};
-
-/*
- * ===  FUNCTION  ======================================================================
- *         Name:  markdown
- *  Description:  Parse and render a markdown file stored as array of lines.
- * =====================================================================================
+/**
+ * Parse and render a markdown file stored as array of lines
+ * @param mkd An array of lines
+ * @param lines Number of lines in the array
  */
 void
 markdown (char **mkd, int lines) {
-  char *pch;
-  int is_header;
-  int is_list;
-  int y, x;
-
-  /* Check for markers in lines */
+  /* Parse every line of markdown file */
   for (int i = 0; i < lines; i++) {
-    /* Check for header markups */
-    is_header = identify_headers (mkd[i]);
-
-    if (is_header == HEADER_ATX)
-      parse_atx_headers (mkd[i]);
-    else if (is_header == HEADER_SETEXT_1) {
-      /* Clear previous line and print it again with header style */
-      getyx (p, y, x);
-
-      if (y > 0)
-        wmove (p, y - 1, 0);
-
-      clrtoeol();
-      wattron (p, COLOR_PAIR (HEADER_1));
-      waddstr (p, mkd[i - 1]);
-      wattroff (p, COLOR_PAIR (HEADER_1));
-    } else if (is_header == HEADER_SETEXT_2) {
-      /* Clear previous line and print it again with header style */
-      getyx (p, y, x);
-
-      if (y > 0)
-        wmove (p, y - 1, 0);
-
-      clrtoeol();
-      wattron (p, COLOR_PAIR (HEADER_2));
-      waddstr (p, mkd[i - 1]);
-      wattroff (p, COLOR_PAIR (HEADER_2));
-    } else
-      /* Check for inline markups */
-      parse_marks (mkd[i]);
+    /* Check for block elements */
+    parse_headers (mkd, i) || parse_lists (mkd, i);
   }
-}   /* -----  end of function markdown  ----- */
+}
 
-/* #####   FUNCTION DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   ##################### */
-/*
- * ===  FUNCTION  ======================================================================
- *         Name:  parse_atx_headers
- *  Description:  Parse atx style header lines.
- * =====================================================================================
+/**
+ * Identify if line is a header of settext or atx style and parse it.
+ * @param line A line of a markdown document.
+ * @return true if line is header otherwise false.
+ */
+static bool
+parse_headers (char **mkd, int ln) {
+  int i = 0;
+  char *line = mkd[ln];
+
+  if (line[0] == '#') {
+    parse_atx_headers (line);
+    return true;
+  }
+
+  /* Don't check for setext header in first line */
+  if (ln != 0) {
+    /* Check setext header */
+    if (line[0] == '=') {
+      while (line[i] == '=')
+        i++;
+
+      if (i == (strlen (line) - 1)) {
+        parse_setext_headers (mkd[ln - 1], HEADER_SETEXT_1);
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    i = 0;
+    if (line[0] == '-') {
+      while (line[i] == '-')
+        i++;
+
+      if ((i == strlen (line) - 1)) {
+        parse_setext_headers (mkd[ln - 1], HEADER_SETEXT_2);
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Parse atx style header lines
+ * @param header The line with the header
  */
 static void
 parse_atx_headers (char *header) {
-  int thash = 1;
   int i = 0;
   int lvl = 0;
   size_t end;
@@ -132,20 +140,46 @@ parse_atx_headers (char *header) {
   line[end - i + 1] = '\0';
   parse_marks (line);
   free (line);
-  line = NULL;
   waddch (p, '\n');
   wattroff (p, COLOR_PAIR (lvl));
-}   /* -----  end of function parse_atx_headers  ----- */
-/*
- * ===  FUNCTION  ======================================================================
- *         Name:  parse_marks
- *  Description:  Parse line for emphasis, inline code, escapable characters
- *                and links.
- * =====================================================================================
+}
+
+static void
+parse_setext_headers (char *header, int level) {
+  int y, x;
+
+  if (level == HEADER_SETEXT_1) {
+    /* Clear previous line and print it again with header style */
+    getyx (p, y, x);
+
+    if (y > 0)
+      wmove (p, y - 1, 0);
+
+    clrtoeol();
+    wattron (p, COLOR_PAIR (HEADER_1));
+    waddstr (p, header);
+    wattroff (p, COLOR_PAIR (HEADER_1));
+  } else if (level == HEADER_SETEXT_2) {
+    /* Clear previous line and print it again with header style */
+    getyx (p, y, x);
+
+    if (y > 0)
+      wmove (p, y - 1, 0);
+
+    clrtoeol();
+    wattron (p, COLOR_PAIR (HEADER_2));
+    waddstr (p, header);
+    wattroff (p, COLOR_PAIR (HEADER_2));
+  }
+}
+
+/**
+ * Parse line for emphasis, inline code, escapable characters and links.
+ * @param line A line of the markdown file
  */
 static void
 parse_marks (char *line) {
-  char *emp;
+  char *emp = NULL;
 
   /* Check for emphasis characters in line */
   if ((emp = strchr (line, '*')) != NULL || (emp = strchr (line, '_')) != NULL) {
@@ -161,7 +195,20 @@ parse_marks (char *line) {
     }
 
     /* Check if we have an escape char before or surrounded space */
-    if (emp[-1] != '\\' || emp[-1] == ' ') {
+    if (emp[-1] == '\\' || (emp[-1] == ' ' && emp[1] == ' ')) {
+      if (emp[-1] == '\\') {
+        /* Print until '*' or '_' char, remove backslash and parse rest of line */
+        wprintw (p, "%.*s", emp - line - 1, line);
+        wprintw (p, "%.*s", 1, emp);
+        parse_marks (emp + 1);
+        return;
+      } else {
+        /* Print until '*' or '_' char and parse rest of line */
+        wprintw (p, "%.*s", emp - line + 1, line);
+        parse_marks (emp + 1);
+        return;
+      }
+    } else {
       wprintw (p, "%.*s", emp - line, line);
       char *emp_end;
 
@@ -182,65 +229,82 @@ parse_marks (char *line) {
         parse_marks (emp_end + 1);
         return;
       }
-    } else {
-      /* Print until '*' or '_' char, remove backslash and parse rest of line */
-      wprintw (p, "%.*s", emp - line - 1, line);
-      wprintw (p, "%.*s", 1, emp);
-      parse_marks (emp + 1);
-      return;
     }
   } else
     waddstr (p, line);
-}   /* -----  end of static function parse_marks  ----- */
-/*
- * ===  FUNCTION  ======================================================================
- *         Name:  parse_list
- *  Description:  Parse list lines.
- * =====================================================================================
- */
-static void
-parse_list (char *list) {
-  int i = 2;
+}
 
-  /* Remove whitespace */
-  while (list[i] == ' ')
+/**
+ * Identify if a line is a list and parse it otherwise it use parse_marks function
+ * @param line The line containing a header markup
+ */
+static bool
+parse_lists (char **mkd, int ln) {
+  static int lvl = 0;
+  static bool in_list = false;
+  char *line = mkd[ln];
+  int i = 0;
+  char list_markup;
+
+  /* Check for spaces at beginning */
+  while (line[i] == ' ')
     i++;
 
-  /* Print list item */
-  waddch (p, '*' | COLOR_PAIR (LIST));
-  waddch (p, ' ');
-  wprintw (p, "%s", list + i);
-}   /* -----  end of static function parse_list  ----- */
-/*
- * ===  FUNCTION  ======================================================================
- *         Name:  identify_headers
- *  Description:  Identify if line is a header of settext or atx style.
- * =====================================================================================
- */
-static int
-identify_headers (char *line) {
-  int i = 0;
+  if ((line[i] == '*' || line[i] == '+' || line[i] == '-') && (line[i + 1] == ' ' || line[i + 1] == '\t')) {
+    /* Check that we until three spaces before list markup character */
+    if (!in_list && i < 4) {
+      /* Set flag that we are in list */
+      in_list = true;
+    }
+    if (in_list) {
+      /* Find level of list */
+      lvl = i / 4;
+      switch (lvl % 3) {
+        case 0:list_markup = '*';
+          break;
+        case 1:list_markup = '+';
+          break;
+        case 2:list_markup = '-';
+          break;
+        default:list_markup = '*';
+      }
 
-  if (line[0] == '#')
-    return HEADER_ATX;
-
-  if (line[0] == '=') {
-    while (line[i] == '=')
+      /* Remove space after list markup character */
       i++;
+      while (line[i] == ' ')
+        i++;
 
-    if (i == (strlen (line) - 1))
-      return HEADER_SETEXT_1;
+      /* Print list item */
+      int spaces = lvl * INDENT_SPACES;
+      while (spaces-- > 0)
+        waddch (p, ' ');
+      waddch (p, list_markup | COLOR_PAIR (LIST));
+      waddch (p, ' ');
+    }
+  } else {
+    /* Next paragraph on same list item must be start with one tab or 4 spaces */
+    if (ln != 0 && !(i == NEXT_LIST_PAR || line[0] == '\t')) {
+      /* Remove space before new line character */
+      int j = 0;
+      while (mkd[ln - 1][j] == ' ' || mkd[ln - 1][j] == '\t')
+        j++;
+      if (mkd[ln - 1][j] == '\n') {
+        in_list = false;
+        lvl = 0;
+      }
+    }
+
+    if (in_list) {
+      /* Check for correct indent of paragraph lines */
+      int spaces = (lvl * INDENT_SPACES) + LIST_INDENT_SPC;
+      if (i != spaces) {
+        while (spaces-- > 0)
+          waddch (p, ' ');
+      }
+    }
   }
 
-  i = 0;
-
-  if (line[0] == '-') {
-    while (line[i] == '-')
-      i++;
-
-    if ((i == strlen (line) - 1))
-      return HEADER_SETEXT_2;
-  }
-
-  return NO_HEADER;
-}   /* -----  end of static function identify_headers  ----- */
+  /* Check for inline markups */
+  parse_marks (line + i);
+  return false;
+}
