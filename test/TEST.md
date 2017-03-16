@@ -1,3 +1,14 @@
+Check horizontal rule:
+* * *
+
+***
+
+*****
+
+- - -
+
+---------------------------------------
+
 Check ATX headers:
 #                          HEADER 1#####################
 ## HEADER 2 ###
@@ -77,7 +88,6 @@ Ordered lists.
     * Not a list item
     
 Check new lines:
-
 
 
 

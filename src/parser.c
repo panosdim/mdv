@@ -23,6 +23,8 @@
 #include <string.h>
 #include "display.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-value"
 #define INDENT_SPACES 4
 #define NEXT_LIST_PAR 4
 #define LIST_INDENT_SPC 2
@@ -34,6 +36,7 @@ static bool parse_lists (char **mkd, int ln);
 static void parse_marks (char *line);
 static bool parse_headers (char **mkd, int ln);
 static void parse_setext_headers (char *header, int level);
+static bool parse_hr (char **mkd, int ln);
 
 /**
  * Parse and render a markdown file stored as array of lines
@@ -45,7 +48,7 @@ markdown (char **mkd, int lines) {
   /* Parse every line of markdown file */
   for (int i = 0; i < lines; i++) {
     /* Check for block elements */
-    parse_headers (mkd, i) || parse_lists (mkd, i);
+    parse_headers (mkd, i) || parse_hr (mkd, i) || parse_lists (mkd, i);
   }
 }
 
@@ -148,25 +151,19 @@ static void
 parse_setext_headers (char *header, int level) {
   int y, x;
 
+  /* Clear previous line and print it again with header style */
+  getyx (p, y, x);
+
+  if (y > 0)
+    wmove (p, y - 1, 0);
+
+  clrtoeol();
+
   if (level == HEADER_SETEXT_1) {
-    /* Clear previous line and print it again with header style */
-    getyx (p, y, x);
-
-    if (y > 0)
-      wmove (p, y - 1, 0);
-
-    clrtoeol();
     wattron (p, COLOR_PAIR (HEADER_1));
     waddstr (p, header);
     wattroff (p, COLOR_PAIR (HEADER_1));
   } else if (level == HEADER_SETEXT_2) {
-    /* Clear previous line and print it again with header style */
-    getyx (p, y, x);
-
-    if (y > 0)
-      wmove (p, y - 1, 0);
-
-    clrtoeol();
     wattron (p, COLOR_PAIR (HEADER_2));
     waddstr (p, header);
     wattroff (p, COLOR_PAIR (HEADER_2));
@@ -235,8 +232,41 @@ parse_marks (char *line) {
 }
 
 /**
+ * Identify if a line is a horizontal rule and parse it otherwise it use parse_marks function
+ * @param line A line of the markdown document
+ * @return true if line is horizontal rule otherwise false.
+ */
+static bool
+parse_hr (char **mkd, int ln) {
+  char *line = mkd[ln];
+  int i = 0;
+
+  /* Check if line starts with * or - or _ */
+  if (line[i] == '*' || line[i] == '-' || line[i] == '_') {
+    /* Check for at least three * or - or _ */
+    int hr_marks = 1;
+    size_t ln_length = strlen (line);
+    i++;
+    while (i < ln_length && (line[i] == ' ' || (line[i] == line[0] && hr_marks++)))
+      i++;
+
+    if (hr_marks < 3 || i != ln_length - 1) {
+      return false;
+    } else {
+      /* Print horizontal rule */
+      int clns = COLS;
+      while (clns-- > 0)
+        waddch (p, '-' | COLOR_PAIR (HR));
+      return true;
+    }
+  } else
+    return false;
+}
+
+/**
  * Identify if a line is a list and parse it otherwise it use parse_marks function
- * @param line The line containing a header markup
+ * @param line A line of the markdown document
+ * @return true if line is list otherwise false.
  */
 static bool
 parse_lists (char **mkd, int ln) {
@@ -260,13 +290,17 @@ parse_lists (char **mkd, int ln) {
       /* Find level of list */
       lvl = i / 4;
       switch (lvl % 3) {
-        case 0:list_markup = '*';
+        case 0:
+          list_markup = '*';
           break;
-        case 1:list_markup = '+';
+        case 1:
+          list_markup = '+';
           break;
-        case 2:list_markup = '-';
+        case 2:
+          list_markup = '-';
           break;
-        default:list_markup = '*';
+        default:
+          list_markup = '*';
       }
 
       /* Remove space after list markup character */
@@ -308,3 +342,5 @@ parse_lists (char **mkd, int ln) {
   parse_marks (line + i);
   return false;
 }
+
+#pragma clang diagnostic pop

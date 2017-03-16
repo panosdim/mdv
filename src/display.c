@@ -32,7 +32,6 @@ static int ROWS, lines;
  */
 void
 initialize (char *mdfile) {
-  int ret;
   /* Open markdown file for read only */
   FILE *fp = fopen (mdfile, "r");
 
@@ -63,6 +62,7 @@ initialize (char *mdfile) {
   init_pair (HEADER_5, COLOR_MAGENTA, COLOR_BLACK);
   init_pair (HEADER_6, COLOR_CYAN, COLOR_BLACK);
   init_pair (LIST, COLOR_GREEN, COLOR_BLACK);
+  init_pair (HR, COLOR_BLACK, COLOR_WHITE);
 
   /* Find how much rows we need for the pad */
   ROWS = fcntlines (fp, COLS);
@@ -106,10 +106,12 @@ handle_input () {
 
   while ((ch = wgetch (p)) != 'q') {
     switch (ch) {
-      case KEY_HOME:x = 0;
+      case KEY_HOME:
+        x = 0;
         break;
 
-      case KEY_END:x = COLS - 1;
+      case KEY_END:
+        x = COLS - 1;
         break;
 
       case KEY_LEFT:
@@ -157,6 +159,9 @@ handle_input () {
           raw_data ();
         }
 
+        break;
+
+      default:
         break;
     }
 
