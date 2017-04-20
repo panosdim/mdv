@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="mdv"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\src\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/padi/ClionProjects/mdv/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/padi/ClionProjects/mdv/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/padi/ClionProjects/mdv/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mdv">
+				<Option output="/home/padi/ClionProjects/mdv/cmake-build-debug/mdv" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/padi/ClionProjects/mdv/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1/x86_64-redhat-linux"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 mdv"/>
+					<CompileFile command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mdv/fast">
+				<Option output="/home/padi/ClionProjects/mdv/cmake-build-debug/mdv" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/padi/ClionProjects/mdv/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1/x86_64-redhat-linux"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 mdv/fast"/>
+					<CompileFile command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/bin/gmake -f &quot;/home/padi/ClionProjects/mdv/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/padi/ClionProjects/mdv/src/display.c">
+			<Option target="mdv"/>
+		</Unit>
+		<Unit filename="/home/padi/ClionProjects/mdv/src/display.h">
+			<Option target="mdv"/>
+		</Unit>
+		<Unit filename="/home/padi/ClionProjects/mdv/src/fallback.c">
+			<Option target="mdv"/>
+		</Unit>
+		<Unit filename="/home/padi/ClionProjects/mdv/src/fallback.h">
+			<Option target="mdv"/>
+		</Unit>
+		<Unit filename="/home/padi/ClionProjects/mdv/src/file.c">
+			<Option target="mdv"/>
+		</Unit>
+		<Unit filename="/home/padi/ClionProjects/mdv/src/file.h">
+			<Option target="mdv"/>
+		</Unit>
+		<Unit filename="/home/padi/ClionProjects/mdv/src/main.c">
+			<Option target="mdv"/>
+		</Unit>
+		<Unit filename="/home/padi/ClionProjects/mdv/src/parser.c">
+			<Option target="mdv"/>
+		</Unit>
+		<Unit filename="/home/padi/ClionProjects/mdv/src/parser.h">
+			<Option target="mdv"/>
+		</Unit>
+		<Unit filename="/home/padi/ClionProjects/mdv/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/padi/ClionProjects/mdv/src/MdvConfig.h.in">
+			<Option virtualFolder="CMake Files\src\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

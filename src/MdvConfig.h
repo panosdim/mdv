@@ -1,0 +1,4 @@
+#define MDV_VERSION_MAJOR 1
+#define MDV_VERSION_MINOR 0
+
+#define HAVE_GETLINE

@@ -35,7 +35,7 @@ enum {
   HEADER_5 = 5,
   HEADER_6 = 6,
   LIST = 7,
-  EMPHASIS_2 = 8,
+  HR = 8,
   CODE_BLOCK = 9
 };
 
