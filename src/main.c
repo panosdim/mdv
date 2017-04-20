@@ -28,21 +28,21 @@
  * @return 0 on success and -1 on failure
  */
 int
-main (int argc, char *argv[]) {
-  /* Check if markdown file passed as argument */
-  if (argc != 2) {
-    fprintf (stderr, "%s Version %d.%d\n",
-             argv[0],
-             MDV_VERSION_MAJOR,
-             MDV_VERSION_MINOR);
-    fprintf (stderr, "usage: %s markdown_file\n", argv[0]);
-    exit (EXIT_FAILURE);
-  }
+main(int argc, char *argv[]) {
+    /* Check if markdown file passed as argument */
+    if (argc != 2) {
+        fprintf(stderr, "%s Version %d.%d\n",
+                argv[0],
+                MDV_VERSION_MAJOR,
+                MDV_VERSION_MINOR);
+        fprintf(stderr, "usage: %s markdown_file\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
-  /* initialize ncurses */
-  initialize (argv[1]);
-  /* performing markdown parsing */
-  display ();
-  /* Wait for user input */
-  handle_input ();
+    /* initialize ncurses */
+    initialize(argv[1]);
+    /* performing markdown parsing */
+    display();
+    /* Wait for user input */
+    handle_input();
 }

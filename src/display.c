@@ -31,155 +31,158 @@ static int ROWS, lines;
  * @param mdfile The markdown file
  */
 void
-initialize (char *mdfile) {
-  int ret;
-  /* Open markdown file for read only */
-  FILE *fp = fopen (mdfile, "r");
+initialize(char *mdfile) {
+    /* Open markdown file for read only */
+    FILE *fp = fopen(mdfile, "r");
 
-  if (fp == NULL) {
-    fprintf (stderr, "Can't open file %s for reading\n", mdfile);
-    exit (EXIT_FAILURE);
-  }
+    if (fp == NULL) {
+        fprintf(stderr, "Can't open file %s for reading\n", mdfile);
+        exit(EXIT_FAILURE);
+    }
 
-  /* initialize ncurses */
-  initscr ();
-  noecho ();
-  cbreak ();
-  keypad (stdscr, TRUE);
+    /* initialize ncurses */
+    initscr();
+    noecho();
+    cbreak();
+    keypad(stdscr, TRUE);
 
-  /* Check if terminal support colours */
-//  if (has_colors () == FALSE) {
-//    endwin ();
-//    fprintf (stderr, "Your terminal does not support color\n");
-//    exit (EXIT_FAILURE);
-//  }
+    /* Check if terminal support colours */
+    if (has_colors() == FALSE) {
+        endwin();
+        fprintf(stderr, "Your terminal does not support color\n");
+        exit(EXIT_FAILURE);
+    }
 
-  /* Initialize color pairs */
-  start_color ();
-  init_pair (HEADER_1, COLOR_RED, COLOR_BLACK);
-  init_pair (HEADER_2, COLOR_GREEN, COLOR_BLACK);
-  init_pair (HEADER_3, COLOR_YELLOW, COLOR_BLACK);
-  init_pair (HEADER_4, COLOR_BLUE, COLOR_BLACK);
-  init_pair (HEADER_5, COLOR_MAGENTA, COLOR_BLACK);
-  init_pair (HEADER_6, COLOR_CYAN, COLOR_BLACK);
-  init_pair (LIST, COLOR_GREEN, COLOR_BLACK);
+    /* Initialize color pairs */
+    start_color();
+    init_pair(HEADER_1, COLOR_RED, COLOR_BLACK);
+    init_pair(HEADER_2, COLOR_GREEN, COLOR_BLACK);
+    init_pair(HEADER_3, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(HEADER_4, COLOR_BLUE, COLOR_BLACK);
+    init_pair(HEADER_5, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(HEADER_6, COLOR_CYAN, COLOR_BLACK);
+    init_pair(LIST, COLOR_GREEN, COLOR_BLACK);
 
-  /* Find how much rows we need for the pad */
-  ROWS = fcntlines (fp, COLS);
-  /* Read file in array of string lines */
-  mkd = freadlines (fp, &lines);
-  /* close markdown file */
-  fclose (fp);
+    /* Find how much rows we need for the pad */
+    ROWS = fcntlines(fp, COLS);
+    /* Read file in array of string lines */
+    mkd = freadlines(fp, &lines);
+    /* close markdown file */
+    fclose(fp);
 
-  /* create a new pad */
-  p = newpad (ROWS, COLS);
+    /* create a new pad */
+    p = newpad(ROWS, COLS);
 
-  if (p == NULL) {
-    endwin ();
-    printf ("Unable to create new pad\n");
-    exit (EXIT_FAILURE);
-  }
+    if (p == NULL) {
+        endwin();
+        printf("Unable to create new pad\n");
+        exit(EXIT_FAILURE);
+    }
 
-  keypad (p, TRUE);
+    keypad(p, TRUE);
 }
 
 /**
  * Process and display markdown file
  */
 void
-display () {
-  wclear (p);
-  markdown (mkd, lines);
+display() {
+    wclear(p);
+    markdown(mkd, lines);
 }
 
 /**
  * Wait for use input after display markdown
  */
 void
-handle_input () {
-  int ch;
-  int x = 0;
-  int y = 0;
-  int padpos = 0;
-  int raw_display_flag = false;
-  prefresh (p, padpos, 0, 0, 0, LINES - 1, COLS - 1);
+handle_input() {
+    int ch;
+    int x = 0;
+    int y = 0;
+    int padpos = 0;
+    int raw_display_flag = false;
+    prefresh(p, padpos, 0, 0, 0, LINES - 1, COLS - 1);
 
-  while ((ch = wgetch (p)) != 'q') {
-    switch (ch) {
-      case KEY_HOME:x = 0;
-        break;
+    while ((ch = wgetch(p)) != 'q') {
+        switch (ch) {
+            case KEY_HOME:
+                x = 0;
+                break;
 
-      case KEY_END:x = COLS - 1;
-        break;
+            case KEY_END:
+                x = COLS - 1;
+                break;
 
-      case KEY_LEFT:
-        if (x > 0)
-          x--;
+            case KEY_LEFT:
+                if (x > 0)
+                    x--;
 
-        break;
+                break;
 
-      case KEY_RIGHT:
-        if (x < COLS - 1)
-          x++;
+            case KEY_RIGHT:
+                if (x < COLS - 1)
+                    x++;
 
-        break;
+                break;
 
-      case KEY_UP:
-        if (y == 0 && padpos == 0)
-          break;
-        else if (y == padpos) {
-          y--;
-          padpos--;
-          prefresh (p, padpos, 0, 0, 0, LINES - 1, COLS - 1);
-        } else
-          y--;
+            case KEY_UP:
+                if (y == 0 && padpos == 0)
+                    break;
+                else if (y == padpos) {
+                    y--;
+                    padpos--;
+                    prefresh(p, padpos, 0, 0, 0, LINES - 1, COLS - 1);
+                } else
+                    y--;
 
-        break;
+                break;
 
-      case KEY_DOWN:
-        if (y == ROWS - 1)
-          break;
-        else if (y == padpos + LINES - 1) {
-          y++;
-          padpos++;
-          prefresh (p, padpos, 0, 0, 0, LINES - 1, COLS - 1);
-        } else
-          y++;
+            case KEY_DOWN:
+                if (y == ROWS - 1)
+                    break;
+                else if (y == padpos + LINES - 1) {
+                    y++;
+                    padpos++;
+                    prefresh(p, padpos, 0, 0, 0, LINES - 1, COLS - 1);
+                } else
+                    y++;
 
-        break;
+                break;
 
-      case 'r':
-        if (raw_display_flag) {
-          raw_display_flag = false;
-          display ();
-        } else {
-          raw_display_flag = true;
-          raw_data ();
+            case 'r':
+                if (raw_display_flag) {
+                    raw_display_flag = false;
+                    display();
+                } else {
+                    raw_display_flag = true;
+                    raw_data();
+                }
+
+                break;
+            default:
+                break;
         }
 
-        break;
+        wmove(p, y, x);
+        prefresh(p, padpos, 0, 0, 0, LINES - 1, COLS - 1);
     }
 
-    wmove (p, y, x);
-    prefresh (p, padpos, 0, 0, 0, LINES - 1, COLS - 1);
-  }
+    /* cleanup */
+    for (int i = 0; i < lines; i++)
+        free(mkd[i]);
 
-  /* cleanup */
-  for (int i = 0; i < lines; i++)
-    free (mkd[i]);
-
-  free (mkd);
-  endwin ();
+    free(mkd);
+    endwin();
 }
 
 /**
  * Print markdown file without any formatting
  */
 void
-raw_data () {
-  wclear (p);
+raw_data() {
+    wclear(p);
 
-  for (int i = 0; i < lines; i++)
-    if (mkd[i] != NULL)
-      waddstr (p, mkd[i]);
+    for (int i = 0; i < lines; i++)
+        if (mkd[i] != NULL)
+            waddstr (p, mkd[i]);
 }

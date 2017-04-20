@@ -1,7 +1,7 @@
 Check ATX headers:
 #                          HEADER 1#####################
-## HEADER 2 ###
-###HEADER 3 #2#
+## HEADER 2 *with bold*###
+###HEADER 3 **with emphasis** #2#
 ####HEADER 4
 #####                   HEADER 5               #####
 ###### HEADER 6 ######

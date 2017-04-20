@@ -32,16 +32,16 @@
  * @param cols  Number of columns in ncurses pad
  * @return Number of lines
  */
-unsigned long
-fcntlines (FILE *fp, int cols) {
-  fseek (fp, 0, SEEK_SET);  /* Rewind file position */
-  char line[cols];
-  unsigned long nr_lines = 0;
+int
+fcntlines(FILE *fp, int cols) {
+    fseek(fp, 0, SEEK_SET);  /* Rewind file position */
+    char line[cols];
+    int nr_lines = 0;
 
-  while (fgets (line, cols, fp) != NULL)
-    nr_lines++;
+    while (fgets(line, cols, fp) != NULL)
+        nr_lines++;
 
-  return nr_lines;
+    return nr_lines;
 }
 
 /**
@@ -51,55 +51,54 @@ fcntlines (FILE *fp, int cols) {
  * @return The pointer to the array of strings
  */
 char **
-freadlines (FILE *fp, int *lines) {
-  size_t len = 0;
-  size_t asize = MIN_CHUNK;
-  int i = 0;
-  int nl_avail = MIN_CHUNK;
-  char *line = NULL;
-  char **mkd = NULL;
-  fseek (fp, 0, SEEK_SET);  /* Rewind file position */
-  /* Allocate space to hold pointers to lines of markdown file */
-  mkd = malloc (sizeof (char *) * asize);
+freadlines(FILE *fp, int *lines) {
+    size_t n = 0;
+    size_t array_size = MIN_CHUNK;
+    ssize_t len = 0;
+    int i = 0;
+    int nl_avail = MIN_CHUNK;
+    char *line = NULL;
+    char **mkd = NULL;
+    fseek(fp, 0, SEEK_SET);  /* Rewind file position */
+    /* Allocate space to hold pointers to lines of markdown file */
+    mkd = malloc(sizeof(char *) * array_size);
 
-  if (mkd == NULL) {
-    fprintf (stderr, "Can't allocate memory for storing lines of file\n");
-    errno = ENOMEM;
-    exit (EXIT_FAILURE);
-  }
-
-  while (getline (&line, &len, fp) != -1) {
-    if (nl_avail < 2) {
-      asize += MIN_CHUNK;
-      mkd = realloc (mkd, sizeof (char *) * asize);
-
-      if (mkd == NULL) {
-        fprintf (stderr, "Can't allocate memory for storing lines of file\n");
+    if (mkd == NULL) {
+        fprintf(stderr, "Can't allocate memory for storing lines of file\n");
         errno = ENOMEM;
-        exit (EXIT_FAILURE);
-      }
-
-      nl_avail += MIN_CHUNK;
+        exit(EXIT_FAILURE);
     }
 
-    mkd[i] = malloc (len + 1);
+    /* Read file line by line in array */
+    while ((len = getline(&line, &n, fp)) != -1) {
+        if (nl_avail < 2) {
+            array_size += MIN_CHUNK;
+            mkd = realloc(mkd, sizeof(char *) * array_size);
 
-    if (mkd[i] == NULL) {
-      fprintf (stderr, "Can't allocate memory for storing lines of file\n");
-      errno = ENOMEM;
-      exit (EXIT_FAILURE);
+            if (mkd == NULL) {
+                fprintf(stderr, "Can't allocate memory for storing lines of file\n");
+                errno = ENOMEM;
+                exit(EXIT_FAILURE);
+            }
+
+            nl_avail += MIN_CHUNK;
+        }
+
+        mkd[i] = malloc((size_t) len);
+        if (mkd[i] == NULL) {
+            fprintf(stderr, "Can't allocate memory for storing lines of file\n");
+            errno = ENOMEM;
+            exit(EXIT_FAILURE);
+        }
+        memcpy(mkd[i], line, (size_t) len);
+        i++;
+        nl_avail--;
     }
+    /* Free line */
+    free(line);
+    line = NULL;
+    n = 0;
 
-    memcpy (mkd[i], line, len);
-    mkd[i][len + 1] = '\0';
-    i++;
-    nl_avail--;
-  }
-  /* Free line */
-  free (line);
-  line = NULL;
-  len = 0;
-
-  *lines = i;
-  return mkd;
+    *lines = i;
+    return mkd;
 }
