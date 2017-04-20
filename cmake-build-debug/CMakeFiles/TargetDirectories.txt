@@ -1,3 +1,0 @@
-/home/padi/ClionProjects/mdv/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/padi/ClionProjects/mdv/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/padi/ClionProjects/mdv/cmake-build-debug/CMakeFiles/mdv.dir

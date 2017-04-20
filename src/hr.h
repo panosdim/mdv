@@ -16,24 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef MDV_HR_H
+#define MDV_HR_H
 
-#include "headers.h"
-#include "lists.h"
-#include "hr.h"
+#include "stdbool.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-value"
-/**
- * Parse and render a markdown file stored as array of lines
- * @param mkd An array of lines
- * @param lines Number of lines in the array
- */
-void
-markdown(char **mkd, int lines) {
-    /* Parse every line of markdown file */
-    for (int i = 0; i < lines; i++) {
-        /* Check for block elements */
-        parse_headers(mkd, i) || parse_hr (mkd, i) || parse_lists(mkd, i);
-    }
-}
-#pragma clang diagnostic pop
+bool parse_hr (char **mkd, int ln);
+
+#endif //MDV_HR_H
