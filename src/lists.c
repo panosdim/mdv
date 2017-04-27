@@ -96,6 +96,6 @@ parse_lists(char **mkd, int ln) {
     }
 
     /* Check for inline markups */
-    parse_marks(line + i);
+    parse_marks(line, line + i);
     return false;
 }

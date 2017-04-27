@@ -21,9 +21,9 @@ Check ATX headers:
 
 Check SETEXT headers:
 
-Header 1
+Header 1 *with bold*
 ====
-Header 2
+Header 2 **with ephasis**
 -
 Not a Header
 ----NOT A HEADER-----

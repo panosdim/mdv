@@ -24,10 +24,10 @@
 #include "headers.h"
 
 static void
-parse_atx_headers(char *header) ;
+parse_atx_headers(char *header);
 
 static void
-parse_setext_headers(char *header, int level) ;
+parse_setext_headers(char *header, int level);
 
 
 /**
@@ -119,7 +119,7 @@ parse_atx_headers(char *header) {
 
     memcpy(line, header + i, end - i + 1);
     line[end - i + 1] = '\0';
-    parse_marks(line);
+    parse_marks(line, line);
     free(line);
     waddch(p, '\n');
     wattroff (p, COLOR_PAIR(lvl));
@@ -133,27 +133,22 @@ static void
 parse_setext_headers(char *header, int level) {
     int y, x;
 
+    /* Clear previous line and print it again with header style */
+    getyx (p, y, x);
+    x = 0;
+
+    if (y > 0)
+        wmove(p, y - 1, x);
+
+    clrtoeol();
+
     if (level == HEADER_SETEXT_1) {
-        /* Clear previous line and print it again with header style */
-        getyx (p, y, x);
-
-        if (y > 0)
-            wmove(p, y - 1, 0);
-
-        clrtoeol();
         wattron (p, COLOR_PAIR(HEADER_1));
-        waddstr (p, header);
+        parse_marks(header, header);
         wattroff (p, COLOR_PAIR(HEADER_1));
     } else if (level == HEADER_SETEXT_2) {
-        /* Clear previous line and print it again with header style */
-        getyx (p, y, x);
-
-        if (y > 0)
-            wmove(p, y - 1, 0);
-
-        clrtoeol();
         wattron (p, COLOR_PAIR(HEADER_2));
-        waddstr (p, header);
+        parse_marks(header, header);
         wattroff (p, COLOR_PAIR(HEADER_2));
     }
 }

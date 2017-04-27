@@ -84,20 +84,21 @@ freadlines(FILE *fp, int *lines) {
             nl_avail += MIN_CHUNK;
         }
 
-        mkd[i] = malloc((size_t) len);
+        mkd[i] = malloc((size_t) len + 1);
         if (mkd[i] == NULL) {
             fprintf(stderr, "Can't allocate memory for storing lines of file\n");
             errno = ENOMEM;
             exit(EXIT_FAILURE);
         }
-        memcpy(mkd[i], line, (size_t) len);
+        memcpy(mkd[i], line, (size_t) len + 1);
         i++;
         nl_avail--;
+
+        /* Free line */
+        free(line);
+        line = NULL;
+        n = 0;
     }
-    /* Free line */
-    free(line);
-    line = NULL;
-    n = 0;
 
     *lines = i;
     return mkd;

@@ -18,6 +18,6 @@
 #ifndef MDV_EMPHASIS_H
 #define MDV_EMPHASIS_H
 
-void parse_marks(char *line);
+void parse_marks(char *line, char *pos);
 
 #endif //MDV_EMPHASIS_H

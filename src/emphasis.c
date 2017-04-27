@@ -19,69 +19,68 @@
 #include <ncurses.h>
 #include <string.h>
 #include "display.h"
-#include "emphasis.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-value"
 /**
  * Parse line for emphasis, inline code, escape characters and links.
  * @param line A line of the markdown file
+ * @param pos Position in line to continue parsing
  */
 void
-parse_marks(char *line) {
+parse_marks(char *line, char *pos) {
     char *emp = NULL;
 
     /* Check for emphasis characters in line */
-    if ((emp = strchr(line, '*')) != NULL || (emp = strchr(line, '_')) != NULL) {
+    if ((emp = strchr(pos, '*')) != NULL || (emp = strchr(pos, '_')) != NULL) {
         /* Check for emphasis characters at the beginning of line */
         if (emp == line) {
             /* Check for space after emphasis characters */
             if (emp[1] == ' ') {
                 /* Parse rest of line */
                 wprintw(p, "%.*s", 1, emp);
-                parse_marks(emp + 1);
+                parse_marks(line, emp + 1);
                 return;
             }
         }
 
         /* Check if we have an escape char before or surrounded space */
-        if (emp[-1] == '\\' || (emp[-1] == ' ' && emp[1] == ' ')) {
+        if (emp > line) {
             if (emp[-1] == '\\') {
                 /* Print until '*' or '_' char, remove backslash and parse rest of line */
-                wprintw(p, "%.*s", emp - line - 1, line);
+                wprintw(p, "%.*s", emp - pos - 1, pos);
                 wprintw(p, "%.*s", 1, emp);
-                parse_marks(emp + 1);
-                return;
-            } else {
-                /* Print until '*' or '_' char and parse rest of line */
-                wprintw(p, "%.*s", emp - line + 1, line);
-                parse_marks(emp + 1);
+                parse_marks(line, emp + 1);
                 return;
             }
-        } else {
-            wprintw(p, "%.*s", emp - line, line);
-            char *emp_end;
-
-            if (emp[1] == '*' || emp[1] == '_') {
-                wattron (p, A_BOLD);
-                (emp_end = strchr(emp + 2, '*')) || (emp_end = strchr(emp + 2, '_'));
-                wprintw(p, "%.*s", emp_end - (emp + 2), emp + 2);
-                wattroff (p, A_BOLD);
-                /* Parse rest of line */
-                parse_marks(emp_end + 2);
-                return;
-            } else {
-                wattron (p, A_UNDERLINE);
-                (emp_end = strchr(emp + 1, '*')) || (emp_end = strchr(emp + 1, '_'));
-                wprintw(p, "%.*s", emp_end - (emp + 1), emp + 1);
-                wattroff (p, A_UNDERLINE);
-                /* Parse rest of line */
-                parse_marks(emp_end + 1);
+            if (emp[-1] == ' ' && emp[1] == ' ') {
+                /* Asterisk surrounded by spaces. Print and parse rest of line */
+                wprintw(p, "%.*s", emp - pos + 1, pos);
+                parse_marks(line, emp + 1);
                 return;
             }
         }
-    } else
-        waddstr (p, line);
-}
 
-#pragma clang diagnostic pop
+        wprintw(p, "%.*s", emp - pos, pos);
+        char *emp_end;
+
+        if (emp[1] == '*' || emp[1] == '_') {
+            if ((emp_end = strchr(emp + 2, '*')) != NULL || (emp_end = strchr(emp + 2, '_')) != NULL) {
+                wattron (p, A_BOLD);
+                wprintw(p, "%.*s", emp_end - (emp + 2), emp + 2);
+                wattroff (p, A_BOLD);
+                /* Parse rest of line */
+                parse_marks(line, emp_end + 2);
+            }
+        } else {
+
+            if ((emp_end = strchr(emp + 1, '*')) != NULL || (emp_end = strchr(emp + 1, '_')) != NULL) {
+                wattron (p, A_UNDERLINE);
+                wprintw(p, "%.*s", emp_end - (emp + 1), emp + 1);
+                wattroff (p, A_UNDERLINE);
+                /* Parse rest of line */
+                parse_marks(line, emp_end + 1);
+            }
+        }
+
+    } else
+        waddstr (p, pos);
+}
