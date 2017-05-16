@@ -21,6 +21,6 @@
 
 #include "stdbool.h"
 
-bool parse_hr (char **mkd, int ln);
+bool identify_hr(char **mkd, int ln);
 
 #endif //MDV_HR_H

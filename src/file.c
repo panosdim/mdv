@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include "display.h"
 #include "fallback.h"
 
 /* Always add at least this many bytes when extending the buffer. */
@@ -64,6 +65,7 @@ freadlines(FILE *fp, int *lines) {
     mkd = malloc(sizeof(char *) * array_size);
 
     if (mkd == NULL) {
+        endwin();
         fprintf(stderr, "Can't allocate memory for storing lines of file\n");
         errno = ENOMEM;
         exit(EXIT_FAILURE);
@@ -76,7 +78,8 @@ freadlines(FILE *fp, int *lines) {
             mkd = realloc(mkd, sizeof(char *) * array_size);
 
             if (mkd == NULL) {
-                fprintf(stderr, "Can't allocate memory for storing lines of file\n");
+                endwin();
+                fprintf(stderr, "Can't reallocate memory for storing lines of file\n");
                 errno = ENOMEM;
                 exit(EXIT_FAILURE);
             }
@@ -86,6 +89,7 @@ freadlines(FILE *fp, int *lines) {
 
         mkd[i] = malloc((size_t) len + 1);
         if (mkd[i] == NULL) {
+            endwin();
             fprintf(stderr, "Can't allocate memory for storing lines of file\n");
             errno = ENOMEM;
             exit(EXIT_FAILURE);

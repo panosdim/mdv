@@ -28,7 +28,7 @@
  * @return true if line is horizontal rule otherwise false.
  */
 bool
-parse_hr (char **mkd, int ln) {
+identify_hr(char **mkd, int ln) {
     char *line = mkd[ln];
     int i = 0;
 
@@ -38,10 +38,26 @@ parse_hr (char **mkd, int ln) {
         int hr_marks = 1;
         size_t ln_length = strlen (line);
         i++;
-        while (i < ln_length && (line[i] == ' ' || (line[i] == line[0] && hr_marks++)))
-            i++;
+        while (i < ln_length) {
+            if (line[i] == line[0]) {
+                hr_marks++;
+                i++;
+                continue;
+            }
+            /* Check for spaces between * or - */
+            if (line[i] == ' ' && line[i-1] == line[0]) {
+                i++;
+                continue;
+            }
+            /* Check for last newline character */
+            if (i == ln_length - 1 && line[i] == '\n') {
+                i++;
+                continue;
+            }
+            return false;
+        }
 
-        if (hr_marks < 3 || i != ln_length - 1) {
+        if (hr_marks < 3) {
             return false;
         } else {
             /* Print horizontal rule */

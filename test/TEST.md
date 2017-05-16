@@ -1,13 +1,22 @@
 Check horizontal rule:
+Asterisks
 * * *
-
 ***
-
 *****
-
+Dashes
 - - -
 
+---
+
 ---------------------------------------
+Underscores
+___
+_ _ _
+____________________
+Not Horizontal rule
+- * -
+-   -  -
+*  *  *
 
 Check ATX headers:
 #                          HEADER 1#####################
@@ -38,7 +47,7 @@ tabs is considered blank.)
 Normal paragraphs should not be indented with spaces or tabs.
 
 Check EMPHASIS:
-
+Asterisk in **empha\*sis**
 This is **Strong** text and __strong__ text.
 This is *emphasis* and _emphasis_ text.
 

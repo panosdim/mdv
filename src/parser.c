@@ -33,7 +33,7 @@ markdown(char **mkd, int lines) {
     /* Parse every line of markdown file */
     for (int i = 0; i < lines; i++) {
         /* Check for block elements */
-        parse_headers(mkd, i) || parse_hr (mkd, i) || parse_lists(mkd, i);
+        parse_headers(mkd, i) || identify_hr (mkd, i) || parse_lists(mkd, i);
     }
 }
 #pragma clang diagnostic pop
