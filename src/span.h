@@ -15,9 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef MDV_EMPHASIS_H
-#define MDV_EMPHASIS_H
 
-void parse_marks(char *line, char *pos);
+#ifndef MDV_SPAN_H
+#define MDV_SPAN_H
 
-#endif //MDV_EMPHASIS_H
+void parse_span(char *line);
+
+#endif //MDV_SPAN_H

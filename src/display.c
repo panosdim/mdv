@@ -156,6 +156,7 @@ handle_input() {
                     display();
                 } else {
                     raw_display_flag = true;
+                    wattrset(p, A_NORMAL);
                     raw_data();
                 }
 

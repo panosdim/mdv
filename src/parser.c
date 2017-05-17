@@ -20,9 +20,8 @@
 #include "headers.h"
 #include "lists.h"
 #include "hr.h"
+#include "span.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-value"
 /**
  * Parse and render a markdown file stored as array of lines
  * @param mkd An array of lines
@@ -32,8 +31,8 @@ void
 markdown(char **mkd, int lines) {
     /* Parse every line of markdown file */
     for (int i = 0; i < lines; i++) {
-        /* Check for block elements */
-        parse_headers(mkd, i) || identify_hr (mkd, i) || parse_lists(mkd, i);
+        /* Check for block elements and if not just parse for span elements */
+        if (!(parse_headers(mkd, i) || parse_hr(mkd, i) || parse_lists(mkd, i)))
+            parse_span(mkd[i]);
     }
 }
-#pragma clang diagnostic pop

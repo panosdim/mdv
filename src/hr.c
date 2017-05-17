@@ -28,7 +28,7 @@
  * @return true if line is horizontal rule otherwise false.
  */
 bool
-identify_hr(char **mkd, int ln) {
+parse_hr(char **mkd, int ln) {
     char *line = mkd[ln];
     int i = 0;
 

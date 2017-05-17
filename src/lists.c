@@ -18,11 +18,11 @@
 
 #include <ncurses.h>
 #include "display.h"
-#include "emphasis.h"
 #include "lists.h"
+#include "span.h"
 
 /**
- * Identify if a line is a list and parse it otherwise it use parse_marks function
+ * Identify if a line is a list and parse it otherwise it use parse_span function
  * @param line The line containing a list markup
  */
 bool
@@ -38,7 +38,7 @@ parse_lists(char **mkd, int ln) {
         i++;
 
     if ((line[i] == '*' || line[i] == '+' || line[i] == '-') && (line[i + 1] == ' ' || line[i + 1] == '\t')) {
-        /* Check that we until three spaces before list markup character */
+        /* Check that there is until three spaces before list markup character */
         if (!in_list && i < 4) {
             /* Set flag that we are in list */
             in_list = true;
@@ -96,6 +96,11 @@ parse_lists(char **mkd, int ln) {
     }
 
     /* Check for inline markups */
-    parse_marks(line, line + i);
-    return false;
+    if (in_list) {
+        parse_span(line + i);
+        return true;
+    } else {
+        return false;
+    }
+
 }

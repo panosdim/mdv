@@ -20,8 +20,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "display.h"
-#include "emphasis.h"
 #include "headers.h"
+#include "span.h"
 
 static void
 parse_atx_headers(char *header);
@@ -65,7 +65,7 @@ parse_headers(char **mkd, int ln) {
             while (line[i] == '-')
                 i++;
 
-            if ((i == strlen(line) - 1)) {
+            if ((i == strlen(line) - 1) && mkd[ln - 1][0] != '\n') {
                 parse_setext_headers(mkd[ln - 1], HEADER_SETEXT_2);
                 return true;
             } else {
@@ -109,7 +109,7 @@ parse_atx_headers(char *header) {
 
     /* Print header */
     wattron (p, COLOR_PAIR(lvl));
-    /* Allocate memory to copy header string for marks processing */
+    /* Allocate memory to copy header string for span elements processing */
     line = malloc((end - i + 2) * sizeof(char));
 
     if (line == NULL) {
@@ -119,7 +119,7 @@ parse_atx_headers(char *header) {
 
     memcpy(line, header + i, end - i + 1);
     line[end - i + 1] = '\0';
-    parse_marks(line, line);
+    parse_span(line);
     free(line);
     waddch(p, '\n');
     wattroff (p, COLOR_PAIR(lvl));
@@ -144,11 +144,11 @@ parse_setext_headers(char *header, int level) {
 
     if (level == HEADER_SETEXT_1) {
         wattron (p, COLOR_PAIR(HEADER_1));
-        parse_marks(header, header);
+        parse_span(header);
         wattroff (p, COLOR_PAIR(HEADER_1));
     } else if (level == HEADER_SETEXT_2) {
         wattron (p, COLOR_PAIR(HEADER_2));
-        parse_marks(header, header);
+        parse_span(header);
         wattroff (p, COLOR_PAIR(HEADER_2));
     }
 }
