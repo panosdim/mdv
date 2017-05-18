@@ -25,6 +25,10 @@
 WINDOW *p;
 char **mkd;
 static int ROWS, lines;
+static char *filename;
+static bool raw_display = false;
+
+static void statusbar();
 
 /**
  * Read markdown file to buffer and initialize ncurses
@@ -33,6 +37,7 @@ static int ROWS, lines;
 void
 initialize(char *mdfile) {
     /* Open markdown file for read only */
+    filename = mdfile;
     FILE *fp = fopen(mdfile, "r");
 
     if (fp == NULL) {
@@ -64,6 +69,7 @@ initialize(char *mdfile) {
     init_pair(LIST, COLOR_GREEN, COLOR_BLACK);
     init_pair(HR, COLOR_BLACK, COLOR_WHITE);
     init_pair(CODE_BLOCK, COLOR_BLACK, COLOR_YELLOW);
+    init_pair(STATUS, COLOR_WHITE, COLOR_BLUE);
 
     /* Find how much rows we need for the pad */
     ROWS = fcntlines(fp, COLS);
@@ -91,6 +97,9 @@ void
 display() {
     wclear(p);
     markdown(mkd, lines);
+
+    wmove(p, 0, 0);
+    statusbar();
 }
 
 /**
@@ -102,72 +111,59 @@ handle_input() {
     int x = 0;
     int y = 0;
     int padpos = 0;
-    int raw_display_flag = false;
-    prefresh(p, padpos, 0, 0, 0, LINES - 1, COLS - 1);
+    prefresh(p, padpos, 0, 0, 0, LINES - 2, COLS - 1);
 
     while ((ch = wgetch(p)) != 'q') {
         switch (ch) {
             case KEY_HOME:
                 x = 0;
                 break;
-
             case KEY_END:
                 x = COLS - 1;
                 break;
-
             case KEY_LEFT:
                 if (x > 0)
                     x--;
-
                 break;
-
             case KEY_RIGHT:
                 if (x < COLS - 1)
                     x++;
-
                 break;
-
             case KEY_UP:
                 if (y == 0 && padpos == 0)
                     break;
                 else if (y == padpos) {
                     y--;
                     padpos--;
-                    prefresh(p, padpos, 0, 0, 0, LINES - 1, COLS - 1);
                 } else
                     y--;
-
                 break;
-
             case KEY_DOWN:
                 if (y == ROWS - 1)
                     break;
-                else if (y == padpos + LINES - 1) {
+                else if (y == padpos + LINES - 2) {
                     y++;
                     padpos++;
-                    prefresh(p, padpos, 0, 0, 0, LINES - 1, COLS - 1);
                 } else
                     y++;
-
                 break;
-
             case 'r':
-                if (raw_display_flag) {
-                    raw_display_flag = false;
+                if (raw_display) {
+                    raw_display = false;
                     display();
                 } else {
-                    raw_display_flag = true;
+                    raw_display = true;
                     wattrset(p, A_NORMAL);
                     raw_data();
                 }
-
                 break;
             default:
                 break;
         }
 
         wmove(p, y, x);
-        prefresh(p, padpos, 0, 0, 0, LINES - 1, COLS - 1);
+        statusbar();
+        prefresh(p, padpos, 0, 0, 0, LINES - 2, COLS - 1);
     }
 
     /* cleanup */
@@ -188,4 +184,23 @@ raw_data() {
     for (int i = 0; i < lines; i++)
         if (mkd[i] != NULL)
             waddstr (p, mkd[i]);
+}
+
+/**
+ * Shows a status bar at the last line of terminal
+ */
+static void
+statusbar() {
+    int y, x;
+    getyx(p, y, x);
+    move(LINES - 1, 0);
+    clrtoeol();
+    attron(COLOR_PAIR(STATUS));
+    if (raw_display) {
+        printw("%s %s (%d\%) %d:%d", filename, "raw", (100 * (y + 1) / ROWS), y + 1, x + 1);
+    } else {
+        printw("%s %s (%d\%) %d:%d", filename, "formatted", (100 * (y + 1) / ROWS), y + 1, x + 1);
+    }
+    attroff(COLOR_PAIR(STATUS));
+    refresh();
 }
