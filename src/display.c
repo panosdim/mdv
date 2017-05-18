@@ -63,6 +63,7 @@ initialize(char *mdfile) {
     init_pair(HEADER_6, COLOR_CYAN, COLOR_BLACK);
     init_pair(LIST, COLOR_GREEN, COLOR_BLACK);
     init_pair(HR, COLOR_BLACK, COLOR_WHITE);
+    init_pair(CODE_BLOCK, COLOR_BLACK, COLOR_YELLOW);
 
     /* Find how much rows we need for the pad */
     ROWS = fcntlines(fp, COLS);

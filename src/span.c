@@ -21,12 +21,17 @@
 #include "span.h"
 #include "display.h"
 
+/**
+ * Parse line for span elements
+ * @param line The line containing span elements markup
+ */
 void
 parse_span(char *line) {
     size_t len = strlen(line);
     int i = 0;
     char next_ch;
     attr_t attrs = A_NORMAL;
+    bool mlt_backtick = false;
 
     /* Parse line and copy formatted characters to ncurses window */
     while (i < len) {
@@ -35,7 +40,7 @@ parse_span(char *line) {
             case '_':
                 /* Check if we have an asterisk with surrounded space */
                 if ((i > 0 && i < len - 1) && (line[i - 1] == ' ' && line[i + 1] == ' ')) {
-                    waddch(p, line[i]);
+                    waddch(p, (const chtype) line[i]);
                     break;
                 }
 
@@ -92,18 +97,37 @@ parse_span(char *line) {
                         case '-':
                         case '.':
                         case '!':
-                            waddch(p, next_ch);
+                            waddch(p, (const chtype) next_ch);
                             i++;
                             break;
                         default:
-                            waddch(p, line[i]);
+                            waddch(p, (const chtype) line[i]);
                             break;
                     }
                 }
                 break;
+            case '`':
+                /* Check if we have multiple backticks */
+                if ((i < len - 1) && (line[i + 1] == '`')) {
+                    mlt_backtick ? (mlt_backtick = false) : (mlt_backtick = true);
+                    i++;
+                }
+                /* Check for literal backtick character */
+                if (mlt_backtick && attrs & A_COLOR) {
+                    waddch(p, (const chtype) line[i]);
+                    break;
+                }
+                /* Check if we need to set on or off the color */
+                if (attrs & A_COLOR) {
+                    wattroff (p, COLOR_PAIR(CODE_BLOCK));
+                    attrs &= A_NORMAL;
+                } else {
+                    attrs |= A_COLOR;
+                    wattron (p, COLOR_PAIR(CODE_BLOCK));
+                }
+                break;
             default:
-                waddch(p, line[i]);
-
+                waddch(p, (const chtype) line[i]);
         }
         i++;
     }

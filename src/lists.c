@@ -37,6 +37,8 @@ parse_lists(char **mkd, int ln) {
     while (line[i] == ' ')
         i++;
 
+    /* TODO: Support ordered lists */
+
     if ((line[i] == '*' || line[i] == '+' || line[i] == '-') && (line[i + 1] == ' ' || line[i + 1] == '\t')) {
         /* Check that there is until three spaces before list markup character */
         if (!in_list && i < 4) {

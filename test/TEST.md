@@ -46,6 +46,13 @@ a line containing nothing but spaces or
 tabs is considered blank.) 
 Normal paragraphs should not be indented with spaces or tabs.
 
+Check CODE:
+Use the `printf()` function.
+``There is a literal backtick (`) here.``
+A single backtick in a code span: `` ` ``
+A backtick-delimited string in a code span: `` `foo` ``
+Not a \`CODE\`
+
 Check EMPHASIS:
 Asterisk in **empha\*sis**
 This is **Strong** text and __strong__ text.
@@ -87,6 +94,7 @@ Still continues.
     and using spaces.
    
 Not a list item paragraph.
+
 Ordered lists.
 1.  bunk
     2.  bupkis
