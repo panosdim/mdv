@@ -41,7 +41,8 @@ enum {
     LIST = 7,
     HR = 8,
     CODE_BLOCK = 9,
-    STATUS = 10
+    STATUS = 10,
+    LINK = 11
 };
 
 #endif //MDV_DISPLAY_H

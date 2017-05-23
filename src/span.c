@@ -32,6 +32,9 @@ parse_span(char *line) {
     char next_ch;
     attr_t attrs = A_NORMAL;
     bool mlt_backtick = false;
+    bool in_link = false;
+    char *srch = NULL;
+    char *par_end = NULL;
 
     /* Parse line and copy formatted characters to ncurses window */
     while (i < len) {
@@ -119,11 +122,46 @@ parse_span(char *line) {
                 }
                 /* Check if we need to set on or off the color */
                 if (attrs & A_COLOR) {
-                    wattroff (p, COLOR_PAIR(CODE_BLOCK));
+                    wattroff (p, attrs);
                     attrs &= A_NORMAL;
                 } else {
-                    attrs |= A_COLOR;
-                    wattron (p, COLOR_PAIR(CODE_BLOCK));
+                    attrs |= COLOR_PAIR(CODE_BLOCK);
+                    wattron (p, attrs);
+                }
+                break;
+            case '[':
+                /* Check if it is a link by searching for []() structure */
+                srch = memchr(line + i, '(', len - 1 - i);
+                if (srch != NULL) {
+                    if (srch[-1] == ']') {
+                        srch = memchr(srch, ')', strlen(srch));
+                        if (srch != NULL) {
+                            attrs |= A_UNDERLINE | COLOR_PAIR(LINK);
+                            wattron (p, attrs);
+                            in_link = true;
+                            par_end = srch;
+                            break;
+                        }
+                    }
+                }
+                /* TODO: Add functionality for [][] link structure */
+                /* Not a link structure */
+                waddch(p, (const chtype) line[i]);
+                break;
+            case ']':
+                if (in_link) {
+                    wattroff (p, attrs);
+                    attrs &= A_NORMAL;
+                } else {
+                    waddch(p, (const chtype) line[i]);
+                }
+                break;
+            case '(':
+                if (in_link) {
+                    i = (int) (par_end - line);
+                    in_link =  false;
+                } else {
+                    waddch(p, (const chtype) line[i]);
                 }
                 break;
             default:

@@ -70,6 +70,7 @@ initialize(char *mdfile) {
     init_pair(HR, COLOR_BLACK, COLOR_WHITE);
     init_pair(CODE_BLOCK, COLOR_BLACK, COLOR_YELLOW);
     init_pair(STATUS, COLOR_WHITE, COLOR_BLUE);
+    init_pair(LINK, COLOR_BLUE, COLOR_BLACK);
 
     /* Find how much rows we need for the pad */
     ROWS = fcntlines(fp, COLS);
@@ -197,9 +198,9 @@ statusbar() {
     clrtoeol();
     attron(COLOR_PAIR(STATUS));
     if (raw_display) {
-        printw("%s %s (%d\%) %d:%d", filename, "raw", (100 * (y + 1) / ROWS), y + 1, x + 1);
+        printw("%s (%s) line %d col %d (%d\%)", filename, "raw", y + 1, x + 1, (100 * (y + 1) / ROWS));
     } else {
-        printw("%s %s (%d\%) %d:%d", filename, "formatted", (100 * (y + 1) / ROWS), y + 1, x + 1);
+        printw("%s (%s) line %d col %d (%d\%)", filename, "formatted", y + 1, x + 1, (100 * (y + 1) / ROWS));
     }
     attroff(COLOR_PAIR(STATUS));
     refresh();

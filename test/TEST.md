@@ -18,6 +18,15 @@ Not Horizontal rule
 \--  -
 \_  _  _ 
 
+Check Links:
+This is [an example](http://example.com/ "Title") inline link.
+[ another example ](http://example.com/ "Another test")of inline link.
+
+NOT LINKS
+[test]
+(test parentheseis)
+[test](test parentheseis
+
 Check ATX headers:
 #                          HEADER 1#####################
 ## HEADER 2 *with bold*###
