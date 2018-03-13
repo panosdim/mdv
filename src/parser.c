@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "headers.h"
 #include "lists.h"
 #include "hr.h"
@@ -27,10 +26,11 @@
  * @param mkd An array of lines
  * @param lines Number of lines in the array
  */
-void
-markdown(char **mkd, int lines) {
+void markdown(char **mkd, int lines)
+{
     /* Parse every line of markdown file */
-    for (int i = 0; i < lines; i++) {
+    for (int i = 0; i < lines; i++)
+    {
         /* Check for block elements and if not just parse for span elements */
         if (!(parse_headers(mkd, i) || parse_hr(mkd, i) || parse_lists(mkd, i)))
             parse_span(mkd[i]);

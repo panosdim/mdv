@@ -16,22 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <ncurses.h>
 #include "display.h"
 #include "lists.h"
 #include "span.h"
+#include "mdv.h"
 
 /**
  * Identify if a line is a list and parse it otherwise it use parse_span function
- * @param line The line containing a list markup
+ * @param mkd An array of lines
+ * @param ln The line containing a list markup
  */
-bool
-parse_lists(char **mkd, int ln) {
+bool parse_lists(char **mkd, int ln)
+{
     static int lvl = 0;
     static bool in_list = false;
     char *line = mkd[ln];
     int i = 0;
-    char list_markup;
 
     /* Check for spaces at beginning */
     while (line[i] == ' ')
@@ -39,28 +39,28 @@ parse_lists(char **mkd, int ln) {
 
     /* TODO: Support ordered lists */
 
-    if ((line[i] == '*' || line[i] == '+' || line[i] == '-') && (line[i + 1] == ' ' || line[i + 1] == '\t')) {
+    if ((line[i] == '*' || line[i] == '+' || line[i] == '-') && (line[i + 1] == ' ' || line[i + 1] == '\t'))
+    {
         /* Check that there is until three spaces before list markup character */
-        if (!in_list && i < 4) {
+        if (!in_list && i < 4)
+        {
             /* Set flag that we are in list */
             in_list = true;
         }
-        if (in_list) {
+        if (in_list)
+        {
             /* Find level of list */
             lvl = i / 4;
-            switch (lvl % 3) {
-                case 0:
-                    list_markup = '*';
-                    break;
-                case 1:
-                    list_markup = '+';
-                    break;
-                case 2:
-                    list_markup = '-';
-                    break;
-                default:
-                    list_markup = '*';
-            }
+            char list_markup;
+            int list_lvl = lvl % 3;
+            if (list_lvl == 0)
+                list_markup = '*';
+            else if (list_lvl == 1)
+                list_markup = '+';
+            else if (list_lvl == 2)
+                list_markup = '-';
+            else
+                list_markup = '*';
 
             /* Remove space after list markup character */
             i++;
@@ -71,26 +71,32 @@ parse_lists(char **mkd, int ln) {
             int spaces = lvl * INDENT_SPACES;
             while (spaces-- > 0)
                 waddch(p, ' ');
-            waddch(p, list_markup | COLOR_PAIR (LIST));
+            waddch(p, list_markup | COLOR_PAIR(LIST));
             waddch(p, ' ');
         }
-    } else {
+    }
+    else
+    {
         /* Next paragraph on same list item must be start with one tab or 4 spaces */
-        if (ln != 0 && !(i == NEXT_LIST_PAR || line[0] == '\t')) {
+        if (ln != 0 && !(i == NEXT_LIST_PAR || line[0] == '\t'))
+        {
             /* Remove space before new line character */
             int j = 0;
             while (mkd[ln - 1][j] == ' ' || mkd[ln - 1][j] == '\t')
                 j++;
-            if (mkd[ln - 1][j] == '\n') {
+            if (mkd[ln - 1][j] == '\n')
+            {
                 in_list = false;
                 lvl = 0;
             }
         }
 
-        if (in_list) {
+        if (in_list)
+        {
             /* Check for correct indent of paragraph lines */
             int spaces = (lvl * INDENT_SPACES) + LIST_INDENT_SPC;
-            if (i != spaces) {
+            if (i != spaces)
+            {
                 while (spaces-- > 0)
                     waddch(p, ' ');
             }
@@ -98,11 +104,13 @@ parse_lists(char **mkd, int ln) {
     }
 
     /* Check for inline markups */
-    if (in_list) {
+    if (in_list)
+    {
         parse_span(line + i);
         return true;
-    } else {
+    }
+    else
+    {
         return false;
     }
-
 }

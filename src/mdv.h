@@ -16,15 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MDV_DISPLAY_H
-#define MDV_DISPLAY_H
+#ifndef MDV_H
+#define MDV_H
 
-void initialize(char *mdfile);
+#include <ncurses.h>
 
-void display();
+extern WINDOW *p;
 
-void handle_input();
+enum
+{
+    HEADER_1 = 1,
+    HEADER_2 = 2,
+    HEADER_3 = 3,
+    HEADER_4 = 4,
+    HEADER_5 = 5,
+    HEADER_6 = 6,
+    LIST = 7,
+    HR = 8,
+    CODE_BLOCK = 9,
+    STATUS = 10,
+    LINK = 11
+};
 
-void raw_data();
-
-#endif //MDV_DISPLAY_H
+#endif //MDV_H

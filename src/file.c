@@ -17,12 +17,12 @@
  */
 
 #include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 #include "display.h"
 #include "fallback.h"
+#include "file.h"
 
 /* Always add at least this many bytes when extending the buffer. */
 #define MIN_CHUNK 64
@@ -33,9 +33,9 @@
  * @param cols  Number of columns in ncurses pad
  * @return Number of lines
  */
-int
-fcntlines(FILE *fp, int cols) {
-    fseek(fp, 0, SEEK_SET);  /* Rewind file position */
+int fcntlines(FILE *fp, int cols)
+{
+    fseek(fp, 0, SEEK_SET); /* Rewind file position */
     char line[cols];
     int nr_lines = 0;
 
@@ -52,19 +52,20 @@ fcntlines(FILE *fp, int cols) {
  * @return The pointer to the array of strings
  */
 char **
-freadlines(FILE *fp, int *lines) {
+freadlines(FILE *fp, int *lines)
+{
     size_t n = 0;
     size_t array_size = MIN_CHUNK;
     ssize_t len = 0;
     int i = 0;
     int nl_avail = MIN_CHUNK;
     char *line = NULL;
-    char **mkd = NULL;
-    fseek(fp, 0, SEEK_SET);  /* Rewind file position */
-    /* Allocate space to hold pointers to lines of markdown file */
-    mkd = malloc(sizeof(char *) * array_size);
+    fseek(fp, 0, SEEK_SET); /* Rewind file position */
+    /* Allocate space to hold pointers to lines of file */
+    char **flp = malloc(sizeof(char *) * array_size);
 
-    if (mkd == NULL) {
+    if (flp == NULL)
+    {
         endwin();
         fprintf(stderr, "Can't allocate memory for storing lines of file\n");
         errno = ENOMEM;
@@ -72,12 +73,15 @@ freadlines(FILE *fp, int *lines) {
     }
 
     /* Read file line by line in array */
-    while ((len = getline(&line, &n, fp)) != -1) {
-        if (nl_avail < 2) {
+    while ((len = getline(&line, &n, fp)) != -1)
+    {
+        if (nl_avail < 2)
+        {
             array_size += MIN_CHUNK;
-            mkd = realloc(mkd, sizeof(char *) * array_size);
+            flp = realloc(flp, sizeof(char *) * array_size);
 
-            if (mkd == NULL) {
+            if (flp == NULL)
+            {
                 endwin();
                 fprintf(stderr, "Can't reallocate memory for storing lines of file\n");
                 errno = ENOMEM;
@@ -87,14 +91,15 @@ freadlines(FILE *fp, int *lines) {
             nl_avail += MIN_CHUNK;
         }
 
-        mkd[i] = malloc((size_t) len + 1);
-        if (mkd[i] == NULL) {
+        flp[i] = malloc((size_t)len + 1);
+        if (flp[i] == NULL)
+        {
             endwin();
             fprintf(stderr, "Can't allocate memory for storing lines of file\n");
             errno = ENOMEM;
             exit(EXIT_FAILURE);
         }
-        memcpy(mkd[i], line, (size_t) len + 1);
+        memcpy(flp[i], line, (size_t)len + 1);
         i++;
         nl_avail--;
 
@@ -105,5 +110,5 @@ freadlines(FILE *fp, int *lines) {
     }
 
     *lines = i;
-    return mkd;
+    return flp;
 }

@@ -19,7 +19,9 @@
 #ifndef MDV_FILE_H
 #define MDV_FILE_H
 
-int fcntlines (FILE *fp, int cols);
-char **freadlines (FILE *fp, int *lines);
+#include <stdio.h>
+
+int fcntlines(FILE *fp, int cols);
+char **freadlines(FILE *fp, int *lines);
 
 #endif //MDV_FILE_H

@@ -21,9 +21,10 @@
 #include "display.h"
 #include "file.h"
 #include "parser.h"
+#include "mdv.h"
 
 WINDOW *p;
-char **mkd;
+static char **mkd;
 static int ROWS, lines;
 static char *filename;
 static bool raw_display = false;
@@ -34,13 +35,14 @@ static void statusbar();
  * Read markdown file to buffer and initialize ncurses
  * @param mdfile The markdown file
  */
-void
-initialize(char *mdfile) {
+void initialize(char *mdfile)
+{
     /* Open markdown file for read only */
     filename = mdfile;
     FILE *fp = fopen(mdfile, "r");
 
-    if (fp == NULL) {
+    if (fp == NULL)
+    {
         fprintf(stderr, "Can't open file %s for reading\n", mdfile);
         exit(EXIT_FAILURE);
     }
@@ -52,7 +54,8 @@ initialize(char *mdfile) {
     keypad(stdscr, TRUE);
 
     /* Check if terminal support colours */
-    if (has_colors() == FALSE) {
+    if (has_colors() == FALSE)
+    {
         endwin();
         fprintf(stderr, "Your terminal does not support color\n");
         exit(EXIT_FAILURE);
@@ -82,7 +85,8 @@ initialize(char *mdfile) {
     /* create a new pad */
     p = newpad(ROWS, COLS);
 
-    if (p == NULL) {
+    if (p == NULL)
+    {
         endwin();
         printf("Unable to create new pad\n");
         exit(EXIT_FAILURE);
@@ -94,8 +98,8 @@ initialize(char *mdfile) {
 /**
  * Process and display markdown file
  */
-void
-display() {
+void display()
+{
     wclear(p);
     markdown(mkd, lines);
 
@@ -106,60 +110,58 @@ display() {
 /**
  * Wait for use input after display markdown
  */
-void
-handle_input() {
+void handle_input()
+{
     int ch;
     int x = 0;
     int y = 0;
     int padpos = 0;
     prefresh(p, padpos, 0, 0, 0, LINES - 2, COLS - 1);
 
-    while ((ch = wgetch(p)) != 'q') {
-        switch (ch) {
-            case KEY_HOME:
-                x = 0;
-                break;
-            case KEY_END:
-                x = COLS - 1;
-                break;
-            case KEY_LEFT:
-                if (x > 0)
-                    x--;
-                break;
-            case KEY_RIGHT:
-                if (x < COLS - 1)
-                    x++;
-                break;
-            case KEY_UP:
-                if (y == 0 && padpos == 0)
-                    break;
-                else if (y == padpos) {
-                    y--;
-                    padpos--;
-                } else
-                    y--;
-                break;
-            case KEY_DOWN:
-                if (y == ROWS - 1)
-                    break;
-                else if (y == padpos + LINES - 2) {
-                    y++;
-                    padpos++;
-                } else
-                    y++;
-                break;
-            case 'r':
-                if (raw_display) {
-                    raw_display = false;
-                    display();
-                } else {
-                    raw_display = true;
-                    wattrset(p, A_NORMAL);
-                    raw_data();
-                }
-                break;
-            default:
-                break;
+    while ((ch = wgetch(p)) != 'q')
+    {
+        if (ch == KEY_HOME)
+            x = 0;
+        else if (ch == KEY_END)
+            x = COLS - 1;
+        else if (ch == KEY_LEFT)
+            (x > 0) && x--;
+        else if (ch == KEY_RIGHT)
+            (x < COLS - 1) && x++;
+        else if (ch == KEY_UP)
+        {
+            if (y == 0 && padpos == 0)
+                continue;
+            (y == padpos) && padpos--;
+            y--;
+        }
+        else if (ch == KEY_DOWN)
+        {
+            if (y == ROWS - 1)
+                continue;
+            (y == padpos + LINES - 2) && padpos++;
+            y++;
+        }
+        else if (ch == KEY_SHOME)
+        {
+            y = 0;
+            padpos = 0;
+        }
+        else if (ch == KEY_SEND)
+        {
+            y = ROWS - 1;
+            padpos = ROWS - LINES + 1;
+        }
+        else if (ch == 'r')
+        {
+            if (raw_display)
+                display();
+            else
+            {
+                wattrset(p, A_NORMAL);
+                raw_data();
+            }
+            raw_display = !raw_display;
         }
 
         wmove(p, y, x);
@@ -178,29 +180,33 @@ handle_input() {
 /**
  * Print markdown file without any formatting
  */
-void
-raw_data() {
+void raw_data()
+{
     wclear(p);
 
     for (int i = 0; i < lines; i++)
         if (mkd[i] != NULL)
-            waddstr (p, mkd[i]);
+            waddstr(p, mkd[i]);
 }
 
 /**
  * Shows a status bar at the last line of terminal
  */
 static void
-statusbar() {
+statusbar()
+{
     int y, x;
     getyx(p, y, x);
     move(LINES - 1, 0);
     clrtoeol();
     attron(COLOR_PAIR(STATUS));
-    if (raw_display) {
-        printw("%s (%s) line %d col %d (%d\%)", filename, "raw", y + 1, x + 1, (100 * (y + 1) / ROWS));
-    } else {
-        printw("%s (%s) line %d col %d (%d\%)", filename, "formatted", y + 1, x + 1, (100 * (y + 1) / ROWS));
+    if (raw_display)
+    {
+        printw("%s (%s) line %d col %d (%d%%)", filename, "raw", y + 1, x + 1, (100 * (y + 1) / ROWS));
+    }
+    else
+    {
+        printw("%s (%s) line %d col %d (%d%%)", filename, "formatted", y + 1, x + 1, (100 * (y + 1) / ROWS));
     }
     attroff(COLOR_PAIR(STATUS));
     refresh();

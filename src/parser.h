@@ -19,6 +19,6 @@
 #ifndef MDV_PARSER_H
 #define MDV_PARSER_H
 
-void markdown (char **mkd, int lines);
+void markdown(char **mkd, int lines);
 
 #endif //MDV_PARSER_H

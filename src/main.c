@@ -27,10 +27,11 @@
  * @param argv String array with arguments
  * @return 0 on success and -1 on failure
  */
-int
-main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     /* Check if markdown file passed as argument */
-    if (argc != 2) {
+    if (argc != 2)
+    {
         fprintf(stderr, "%s Version %d.%d\n",
                 argv[0],
                 MDV_VERSION_MAJOR,

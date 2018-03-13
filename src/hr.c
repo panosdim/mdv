@@ -20,52 +20,62 @@
 #include <string.h>
 #include "display.h"
 #include "hr.h"
-
+#include "mdv.h"
 
 /**
  * Identify if a line is a horizontal rule and parse it otherwise it use parse_marks function
- * @param line A line of the markdown document
+ * @param mkd An array of lines
+ * @param ln A line of the markdown document
  * @return true if line is horizontal rule otherwise false.
  */
-bool
-parse_hr(char **mkd, int ln) {
+bool parse_hr(char **mkd, int ln)
+{
     char *line = mkd[ln];
     int i = 0;
 
     /* Check if line starts with * or - or _ */
-    if (line[i] == '*' || line[i] == '-' || line[i] == '_') {
+    if (line[i] == '*' || line[i] == '-' || line[i] == '_')
+    {
         /* Check for at least three * or - or _ */
         int hr_marks = 1;
-        size_t ln_length = strlen (line);
+        size_t ln_length = strlen(line);
         i++;
-        while (i < ln_length) {
-            if (line[i] == line[0]) {
+        while (i < ln_length)
+        {
+            if (line[i] == line[0])
+            {
                 hr_marks++;
                 i++;
                 continue;
             }
             /* Check for spaces between * or - */
-            if (line[i] == ' ' && line[i-1] == line[0]) {
+            if (line[i] == ' ' && line[i - 1] == line[0])
+            {
                 i++;
                 continue;
             }
             /* Check for last newline character */
-            if (i == ln_length - 1 && line[i] == '\n') {
+            if (i == ln_length - 1 && line[i] == '\n')
+            {
                 i++;
                 continue;
             }
             return false;
         }
 
-        if (hr_marks < 3) {
+        if (hr_marks < 3)
+        {
             return false;
-        } else {
+        }
+        else
+        {
             /* Print horizontal rule */
             int clns = COLS;
             while (clns-- > 0)
-                waddch (p, '-' | COLOR_PAIR (HR));
+                waddch(p, '-' | COLOR_PAIR(HR));
             return true;
         }
-    } else
+    }
+    else
         return false;
 }
