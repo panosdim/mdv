@@ -23,6 +23,7 @@
 #include "display.h"
 #include "fallback.h"
 #include "file.h"
+#include "mdv.h"
 
 /* Always add at least this many bytes when extending the buffer. */
 #define MIN_CHUNK 64
