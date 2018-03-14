@@ -95,7 +95,12 @@ freadlines(FILE *fp, int *lines)
         if (flp[i] == NULL)
         {
             endwin();
-            fprintf(stderr, "Can't allocate memory for storing lines of file\n");
+            fprintf(stderr, "Can't allocate memory for storing a line of file\n");
+            for (int j = i - 1; j >= 0; j--)
+            {
+                free(flp[j]);
+            }
+            free(flp);
             errno = ENOMEM;
             exit(EXIT_FAILURE);
         }
