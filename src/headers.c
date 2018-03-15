@@ -126,7 +126,7 @@ parse_atx_headers(char *header)
 
     if (line == NULL)
     {
-        fprintf(stderr, "\ndynamic memory allocation failed\n");
+        fprintf(stderr, "\nDynamic memory allocation for header failed\n");
         exit(EXIT_FAILURE);
     }
 

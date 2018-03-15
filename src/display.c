@@ -18,10 +18,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "display.h"
 #include "file.h"
 #include "parser.h"
 #include "mdv.h"
+
+#define MAX_RIGHT_STATUS 25
 
 WINDOW *p;
 static char **mkd;
@@ -192,22 +195,39 @@ void raw_data()
 /**
  * Shows a status bar at the last line of terminal
  */
-static void
-statusbar()
+static void statusbar()
 {
-    int y, x;
+    int y, x, rt;
     getyx(p, y, x);
     move(LINES - 1, 0);
     clrtoeol();
     attron(COLOR_PAIR(STATUS));
-    if (raw_display)
+
+    int left_part_len = COLS - MAX_RIGHT_STATUS;
+    char left_part[left_part_len];
+    char *mode = raw_display ? "raw" : "formatted";
+    rt = snprintf(left_part, sizeof(left_part), "%s (%s)", filename, mode);
+    if (rt > left_part_len)
     {
-        printw("%s (%s) line %d col %d (%d%%)", filename, "raw", y + 1, x + 1, (100 * (y + 1) / ROWS));
+        char *pos = strrchr(filename, '/');
+        if (pos != NULL)
+        {
+            rt = snprintf(left_part, sizeof(left_part), "%s (%s)", pos + 1, mode);
+            if (rt > left_part_len)
+            {
+                char m = raw_display ? 'r' : 'f';
+                snprintf(left_part, sizeof(left_part), "%s (%c)", pos + 1, m);
+            }
+        }
     }
-    else
-    {
-        printw("%s (%s) line %d col %d (%d%%)", filename, "formatted", y + 1, x + 1, (100 * (y + 1) / ROWS));
-    }
+
+    char right_part[MAX_RIGHT_STATUS];
+    int percentage = (100 * (y + 1) / ROWS);
+    snprintf(right_part, sizeof(right_part), "Ln %d, Col %d (%d%%)", y + 1, x + 1, percentage);
+
+    int white_space = COLS - strlen(left_part) - strlen(right_part);
+    printw("%s%*c%s", left_part, white_space, ' ', right_part);
+
     attroff(COLOR_PAIR(STATUS));
     refresh();
 }

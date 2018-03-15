@@ -18,8 +18,22 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <ncurses.h>
 #include "display.h"
 #include "MdvConfig.h"
+
+void handle_winch(int sig)
+{
+    endwin();
+    // Needs to be called after an endwin() so ncurses will initialize
+    // itself with the new terminal dimensions.
+    refresh();
+    clear();
+
+    display();
+    refresh();
+}
 
 /**
  * Main function check for passed arguments and render markdown file
