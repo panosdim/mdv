@@ -21,7 +21,13 @@
 
 #include <stdio.h>
 
-int fcntlines(FILE *fp, int cols);
-char **freadlines(FILE *fp, int *lines);
+typedef struct mkd_s
+{
+    char **lines;
+    int len;
+    int rows;
+} mkd_s;
+
+mkd_s freadlines(FILE *fp);
 
 #endif //MDV_FILE_H

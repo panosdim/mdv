@@ -27,8 +27,8 @@
 #define MAX_RIGHT_STATUS 25
 
 WINDOW *p;
-static char **mkd;
-static int ROWS, lines;
+static mkd_s mkd;
+static int rows;
 static char *filename;
 static bool raw_display = false;
 
@@ -78,15 +78,14 @@ void initialize(char *mdfile)
     init_pair(STATUS, COLOR_WHITE, COLOR_BLUE);
     init_pair(LINK, COLOR_BLUE, COLOR_BLACK);
 
-    /* Find how much rows we need for the pad */
-    ROWS = fcntlines(fp, COLS);
     /* Read file in array of string lines */
-    mkd = freadlines(fp, &lines);
+    mkd = freadlines(fp);
     /* close markdown file */
+    rows = mkd.rows;
     fclose(fp);
 
     /* create a new pad */
-    p = newpad(ROWS, COLS);
+    p = newpad(rows, COLS);
 
     if (p == NULL)
     {
@@ -104,7 +103,7 @@ void initialize(char *mdfile)
 void display()
 {
     wclear(p);
-    markdown(mkd, lines);
+    markdown(mkd.lines, mkd.len);
 
     wmove(p, 0, 0);
     statusbar();
@@ -140,7 +139,7 @@ void handle_input()
         }
         else if (ch == KEY_DOWN)
         {
-            if (y == ROWS - 1)
+            if (y == rows - 1)
                 continue;
             (y == padpos + LINES - 2) && padpos++;
             y++;
@@ -152,8 +151,8 @@ void handle_input()
         }
         else if (ch == KEY_SEND)
         {
-            y = ROWS - 1;
-            padpos = ROWS - LINES + 1;
+            y = rows - 1;
+            padpos = rows - LINES + 1;
         }
         else if (ch == 'r')
         {
@@ -173,10 +172,10 @@ void handle_input()
     }
 
     /* cleanup */
-    for (int i = 0; i < lines; i++)
-        free(mkd[i]);
+    for (int i = 0; i < mkd.len; i++)
+        free(mkd.lines[i]);
 
-    free(mkd);
+    free(mkd.lines);
     endwin();
 }
 
@@ -187,9 +186,9 @@ void raw_data()
 {
     wclear(p);
 
-    for (int i = 0; i < lines; i++)
-        if (mkd[i] != NULL)
-            waddstr(p, mkd[i]);
+    for (int i = 0; i < mkd.len; i++)
+        if (mkd.lines[i] != NULL)
+            waddstr(p, mkd.lines[i]);
 }
 
 /**
@@ -207,13 +206,13 @@ static void statusbar()
     char left_part[left_part_len];
     char *mode = raw_display ? "raw" : "formatted";
     rt = snprintf(left_part, sizeof(left_part), "%s (%s)", filename, mode);
-    if (rt > left_part_len)
+    if (rt >= left_part_len)
     {
         char *pos = strrchr(filename, '/');
         if (pos != NULL)
         {
             rt = snprintf(left_part, sizeof(left_part), "%s (%s)", pos + 1, mode);
-            if (rt > left_part_len)
+            if (rt >= left_part_len)
             {
                 char m = raw_display ? 'r' : 'f';
                 snprintf(left_part, sizeof(left_part), "%s (%c)", pos + 1, m);
@@ -222,7 +221,7 @@ static void statusbar()
     }
 
     char right_part[MAX_RIGHT_STATUS];
-    int percentage = (100 * (y + 1) / ROWS);
+    int percentage = (100 * (y + 1) / rows);
     snprintf(right_part, sizeof(right_part), "Ln %d, Col %d (%d%%)", y + 1, x + 1, percentage);
 
     int white_space = COLS - strlen(left_part) - strlen(right_part);

@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <math.h>
 #include "display.h"
 #include "fallback.h"
 #include "file.h"
@@ -29,31 +30,12 @@
 #define MIN_CHUNK 64
 
 /**
- * Count the number of lines that a pad of cols columns can display.
- * @param fp    Pointer to file
- * @param cols  Number of columns in ncurses pad
- * @return Number of lines
- */
-int fcntlines(FILE *fp, int cols)
-{
-    fseek(fp, 0, SEEK_SET); /* Rewind file position */
-    char line[cols];
-    int nr_lines = 0;
-
-    while (fgets(line, cols, fp) != NULL)
-        nr_lines++;
-
-    return nr_lines;
-}
-
-/**
  * Read file and store lines in array of strings.
  * @param fp    Pointer to file
  * @param lines Number of lines that stored in array of strings
- * @return The pointer to the array of strings
+ * @return A mkd struct
  */
-char **
-freadlines(FILE *fp, int *lines)
+mkd_s freadlines(FILE *fp)
 {
     size_t n = 0;
     size_t array_size = MIN_CHUNK;
@@ -61,6 +43,8 @@ freadlines(FILE *fp, int *lines)
     int i = 0;
     int nl_avail = MIN_CHUNK;
     char *line = NULL;
+    int nr_lines = 0;
+
     fseek(fp, 0, SEEK_SET); /* Rewind file position */
     /* Allocate space to hold pointers to lines of file */
     char **flp = malloc(sizeof(char *) * array_size);
@@ -76,17 +60,31 @@ freadlines(FILE *fp, int *lines)
     /* Read file line by line in array */
     while ((len = getline(&line, &n, fp)) != -1)
     {
+        if (len > COLS)
+        {
+            int nrl = ceil((double)len / (double)(COLS - 1));
+            nr_lines += nrl;
+        }
+        else
+        {
+            nr_lines++;
+        }
         if (nl_avail < 2)
         {
             array_size += MIN_CHUNK;
-            flp = realloc(flp, sizeof(char *) * array_size);
+            char **tmp = realloc(flp, sizeof(char *) * array_size);
 
-            if (flp == NULL)
+            if (tmp == NULL)
             {
                 endwin();
+                free(flp);
                 fprintf(stderr, "Can't reallocate memory for storing lines of file\n");
                 errno = ENOMEM;
                 exit(EXIT_FAILURE);
+            }
+            else
+            {
+                flp = tmp;
             }
 
             nl_avail += MIN_CHUNK;
@@ -115,6 +113,6 @@ freadlines(FILE *fp, int *lines)
         n = 0;
     }
 
-    *lines = i;
-    return flp;
+    mkd_s mkd = {.lines = flp, .len = i, .rows = nr_lines};
+    return mkd;
 }

@@ -23,11 +23,9 @@
 #include "span.h"
 #include "mdv.h"
 
-static void
-parse_atx_headers(char *header);
+static void parse_atx_headers(char *header);
 
-static void
-parse_setext_headers(char *header, int level);
+static void parse_setext_headers(char *header, int level);
 
 /**
  * Identify if line is a header of settext or atx style and parse it.
@@ -90,8 +88,7 @@ bool parse_headers(char **mkd, int ln)
  * Parse atx style header lines
  * @param header The line with the header
  */
-static void
-parse_atx_headers(char *header)
+static void parse_atx_headers(char *header)
 {
     int i = 0;
     int lvl = 0;
@@ -143,8 +140,7 @@ parse_atx_headers(char *header)
  * @param header The line with the header
  * @param level The level of the header
  */
-static void
-parse_setext_headers(char *header, int level)
+static void parse_setext_headers(char *header, int level)
 {
     int y, x;
 

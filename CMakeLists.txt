@@ -40,4 +40,4 @@ set(SOURCE_FILES
 	src/span.h
 	)
 add_executable(mdv ${SOURCE_FILES})
-target_link_libraries(mdv ${CURSES_LIBRARIES})
+target_link_libraries(mdv ${CURSES_LIBRARIES} m)
