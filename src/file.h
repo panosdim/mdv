@@ -19,15 +19,8 @@
 #ifndef MDV_FILE_H
 #define MDV_FILE_H
 
-#include <stdio.h>
+#include "mdv.h"
 
-typedef struct mkd_s
-{
-    char **lines;
-    int len;
-    int rows;
-} mkd_s;
-
-mkd_s freadlines(FILE *fp);
+mkd_s freadlines(char *mdfile);
 
 #endif //MDV_FILE_H

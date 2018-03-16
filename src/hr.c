@@ -28,9 +28,9 @@
  * @param ln A line of the markdown document
  * @return true if line is horizontal rule otherwise false.
  */
-bool parse_hr(char **mkd, int ln)
+bool parse_hr(mkd_s *mkd, int ln)
 {
-    char *line = mkd[ln];
+    char *line = mkd->lines[ln];
     int i = 0;
 
     /* Check if line starts with * or - or _ */
@@ -72,7 +72,7 @@ bool parse_hr(char **mkd, int ln)
             /* Print horizontal rule */
             int clns = COLS;
             while (clns-- > 0)
-                waddch(p, '-' | COLOR_PAIR(HR));
+                waddch(mkd->p, '-' | COLOR_PAIR(HR));
             return true;
         }
     }

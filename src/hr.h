@@ -19,8 +19,9 @@
 #ifndef MDV_HR_H
 #define MDV_HR_H
 
-#include "stdbool.h"
+#include <stdbool.h>
+#include "mdv.h"
 
-bool parse_hr(char **mkd, int ln);
+bool parse_hr(mkd_s *mkd, int ln);
 
 #endif //MDV_HR_H

@@ -26,11 +26,11 @@
  * @param mkd An array of lines
  * @param ln The line containing a list markup
  */
-bool parse_lists(char **mkd, int ln)
+bool parse_lists(mkd_s *mkd, int ln)
 {
     static int lvl = 0;
     static bool in_list = false;
-    char *line = mkd[ln];
+    char *line = mkd->lines[ln];
     int i = 0;
 
     /* Check for spaces at beginning */
@@ -70,9 +70,9 @@ bool parse_lists(char **mkd, int ln)
             /* Print list item */
             int spaces = lvl * INDENT_SPACES;
             while (spaces-- > 0)
-                waddch(p, ' ');
-            waddch(p, list_markup | COLOR_PAIR(LIST));
-            waddch(p, ' ');
+                waddch(mkd->p, ' ');
+            waddch(mkd->p, list_markup | COLOR_PAIR(LIST));
+            waddch(mkd->p, ' ');
         }
     }
     else
@@ -82,9 +82,9 @@ bool parse_lists(char **mkd, int ln)
         {
             /* Remove space before new line character */
             int j = 0;
-            while (mkd[ln - 1][j] == ' ' || mkd[ln - 1][j] == '\t')
+            while (mkd->lines[ln - 1][j] == ' ' || mkd->lines[ln - 1][j] == '\t')
                 j++;
-            if (mkd[ln - 1][j] == '\n')
+            if (mkd->lines[ln - 1][j] == '\n')
             {
                 in_list = false;
                 lvl = 0;
@@ -98,7 +98,7 @@ bool parse_lists(char **mkd, int ln)
             if (i != spaces)
             {
                 while (spaces-- > 0)
-                    waddch(p, ' ');
+                    waddch(mkd->p, ' ');
             }
         }
     }
@@ -106,7 +106,7 @@ bool parse_lists(char **mkd, int ln)
     /* Check for inline markups */
     if (in_list)
     {
-        parse_span(line + i);
+        parse_span(line + i, mkd->p);
         return true;
     }
     else

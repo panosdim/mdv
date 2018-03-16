@@ -21,7 +21,14 @@
 
 #include <ncurses.h>
 
-extern WINDOW *p;
+typedef struct mkd_s
+{
+    char **lines;
+    int len;
+    int rows;
+    char *filename;
+    WINDOW *p;
+} mkd_s;
 
 enum
 {

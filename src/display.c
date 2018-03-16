@@ -26,10 +26,7 @@
 
 #define MAX_RIGHT_STATUS 25
 
-WINDOW *p;
 static mkd_s mkd;
-static int rows;
-static char *filename;
 static bool raw_display = false;
 
 static void statusbar();
@@ -40,23 +37,13 @@ static void statusbar();
  */
 void initialize(char *mdfile)
 {
-    /* Open markdown file for read only */
-    filename = mdfile;
-    FILE *fp = fopen(mdfile, "r");
-
-    if (fp == NULL)
-    {
-        fprintf(stderr, "Can't open file %s for reading\n", mdfile);
-        exit(EXIT_FAILURE);
-    }
-
-    /* initialize ncurses */
+    // Initialize ncurses
     initscr();
     noecho();
     cbreak();
     keypad(stdscr, TRUE);
 
-    /* Check if terminal support colours */
+    // Check if terminal support colours
     if (has_colors() == FALSE)
     {
         endwin();
@@ -64,7 +51,7 @@ void initialize(char *mdfile)
         exit(EXIT_FAILURE);
     }
 
-    /* Initialize color pairs */
+    // Initialize color pairs
     start_color();
     init_pair(HEADER_1, COLOR_RED, COLOR_BLACK);
     init_pair(HEADER_2, COLOR_GREEN, COLOR_BLACK);
@@ -78,23 +65,25 @@ void initialize(char *mdfile)
     init_pair(STATUS, COLOR_WHITE, COLOR_BLUE);
     init_pair(LINK, COLOR_BLUE, COLOR_BLACK);
 
-    /* Read file in array of string lines */
-    mkd = freadlines(fp);
-    /* close markdown file */
-    rows = mkd.rows;
-    fclose(fp);
+    // Read file in array of string lines
+    mkd = freadlines(mdfile);
 
-    /* create a new pad */
-    p = newpad(rows, COLS);
+    // Create a new pad
+    mkd.p = newpad(mkd.rows, COLS);
 
-    if (p == NULL)
+    if (mkd.p == NULL)
     {
         endwin();
-        printf("Unable to create new pad\n");
+        // Cleanup
+        for (int i = 0; i < mkd.len; i++)
+            free(mkd.lines[i]);
+
+        free(mkd.lines);
+        fprintf(stderr, "Unable to create new pad\n");
         exit(EXIT_FAILURE);
     }
 
-    keypad(p, TRUE);
+    keypad(mkd.p, TRUE);
 }
 
 /**
@@ -102,10 +91,10 @@ void initialize(char *mdfile)
  */
 void display()
 {
-    wclear(p);
-    markdown(mkd.lines, mkd.len);
+    wclear(mkd.p);
+    markdown(&mkd);
 
-    wmove(p, 0, 0);
+    wmove(mkd.p, 0, 0);
     statusbar();
 }
 
@@ -118,9 +107,9 @@ void handle_input()
     int x = 0;
     int y = 0;
     int padpos = 0;
-    prefresh(p, padpos, 0, 0, 0, LINES - 2, COLS - 1);
+    prefresh(mkd.p, padpos, 0, 0, 0, LINES - 2, COLS - 1);
 
-    while ((ch = wgetch(p)) != 'q')
+    while ((ch = wgetch(mkd.p)) != 'q')
     {
         if (ch == KEY_HOME)
             x = 0;
@@ -139,7 +128,7 @@ void handle_input()
         }
         else if (ch == KEY_DOWN)
         {
-            if (y == rows - 1)
+            if (y == mkd.rows - 1)
                 continue;
             (y == padpos + LINES - 2) && padpos++;
             y++;
@@ -151,8 +140,8 @@ void handle_input()
         }
         else if (ch == KEY_SEND)
         {
-            y = rows - 1;
-            padpos = rows - LINES + 1;
+            y = mkd.rows - 1;
+            padpos = mkd.rows - LINES + 1;
         }
         else if (ch == 'r')
         {
@@ -160,18 +149,18 @@ void handle_input()
                 display();
             else
             {
-                wattrset(p, A_NORMAL);
+                wattrset(mkd.p, A_NORMAL);
                 raw_data();
             }
             raw_display = !raw_display;
         }
 
-        wmove(p, y, x);
+        wmove(mkd.p, y, x);
         statusbar();
-        prefresh(p, padpos, 0, 0, 0, LINES - 2, COLS - 1);
+        prefresh(mkd.p, padpos, 0, 0, 0, LINES - 2, COLS - 1);
     }
 
-    /* cleanup */
+    // Cleanup at exit
     for (int i = 0; i < mkd.len; i++)
         free(mkd.lines[i]);
 
@@ -184,11 +173,11 @@ void handle_input()
  */
 void raw_data()
 {
-    wclear(p);
+    wclear(mkd.p);
 
     for (int i = 0; i < mkd.len; i++)
         if (mkd.lines[i] != NULL)
-            waddstr(p, mkd.lines[i]);
+            waddstr(mkd.p, mkd.lines[i]);
 }
 
 /**
@@ -197,7 +186,7 @@ void raw_data()
 static void statusbar()
 {
     int y, x, rt;
-    getyx(p, y, x);
+    getyx(mkd.p, y, x);
     move(LINES - 1, 0);
     clrtoeol();
     attron(COLOR_PAIR(STATUS));
@@ -205,10 +194,10 @@ static void statusbar()
     int left_part_len = COLS - MAX_RIGHT_STATUS;
     char left_part[left_part_len];
     char *mode = raw_display ? "raw" : "formatted";
-    rt = snprintf(left_part, sizeof(left_part), "%s (%s)", filename, mode);
+    rt = snprintf(left_part, sizeof(left_part), "%s (%s)", mkd.filename, mode);
     if (rt >= left_part_len)
     {
-        char *pos = strrchr(filename, '/');
+        char *pos = strrchr(mkd.filename, '/');
         if (pos != NULL)
         {
             rt = snprintf(left_part, sizeof(left_part), "%s (%s)", pos + 1, mode);
@@ -221,7 +210,7 @@ static void statusbar()
     }
 
     char right_part[MAX_RIGHT_STATUS];
-    int percentage = (100 * (y + 1) / rows);
+    int percentage = (100 * (y + 1) / mkd.rows);
     snprintf(right_part, sizeof(right_part), "Ln %d, Col %d (%d%%)", y + 1, x + 1, percentage);
 
     int white_space = COLS - strlen(left_part) - strlen(right_part);

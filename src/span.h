@@ -18,7 +18,8 @@
 
 #ifndef MDV_SPAN_H
 #define MDV_SPAN_H
+#include <ncurses.h>
 
-void parse_span(char *line);
+void parse_span(char *line, WINDOW *p);
 
 #endif //MDV_SPAN_H

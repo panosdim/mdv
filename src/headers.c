@@ -23,9 +23,9 @@
 #include "span.h"
 #include "mdv.h"
 
-static void parse_atx_headers(char *header);
+static void parse_atx_headers(char *header, WINDOW *p);
 
-static void parse_setext_headers(char *header, int level);
+static void parse_setext_headers(char *header, int level, WINDOW *p);
 
 /**
  * Identify if line is a header of settext or atx style and parse it.
@@ -33,13 +33,13 @@ static void parse_setext_headers(char *header, int level);
  * @param ln A line of a markdown document.
  * @return true if line is header otherwise false.
  */
-bool parse_headers(char **mkd, int ln)
+bool parse_headers(mkd_s *mkd, int ln)
 {
-    char *line = mkd[ln];
+    char *line = mkd->lines[ln];
 
     if (line[0] == '#')
     {
-        parse_atx_headers(line);
+        parse_atx_headers(line, mkd->p);
         return true;
     }
 
@@ -55,7 +55,7 @@ bool parse_headers(char **mkd, int ln)
 
             if (i == (strlen(line) - 1))
             {
-                parse_setext_headers(mkd[ln - 1], HEADER_SETEXT_1);
+                parse_setext_headers(mkd->lines[ln - 1], HEADER_SETEXT_1, mkd->p);
                 return true;
             }
             else
@@ -70,9 +70,9 @@ bool parse_headers(char **mkd, int ln)
             while (line[i] == '-')
                 i++;
 
-            if ((i == strlen(line) - 1) && mkd[ln - 1][0] != '\n')
+            if ((i == strlen(line) - 1) && mkd->lines[ln - 1][0] != '\n')
             {
-                parse_setext_headers(mkd[ln - 1], HEADER_SETEXT_2);
+                parse_setext_headers(mkd->lines[ln - 1], HEADER_SETEXT_2, mkd->p);
                 return true;
             }
             else
@@ -88,7 +88,7 @@ bool parse_headers(char **mkd, int ln)
  * Parse atx style header lines
  * @param header The line with the header
  */
-static void parse_atx_headers(char *header)
+static void parse_atx_headers(char *header, WINDOW *p)
 {
     int i = 0;
     int lvl = 0;
@@ -129,7 +129,7 @@ static void parse_atx_headers(char *header)
 
     memcpy(line, header + i, end - i + 1);
     line[end - i + 1] = '\0';
-    parse_span(line);
+    parse_span(line, p);
     free(line);
     waddch(p, '\n');
     wattroff(p, COLOR_PAIR(lvl));
@@ -140,7 +140,7 @@ static void parse_atx_headers(char *header)
  * @param header The line with the header
  * @param level The level of the header
  */
-static void parse_setext_headers(char *header, int level)
+static void parse_setext_headers(char *header, int level, WINDOW *p)
 {
     int y, x;
 
@@ -156,13 +156,13 @@ static void parse_setext_headers(char *header, int level)
     if (level == HEADER_SETEXT_1)
     {
         wattron(p, COLOR_PAIR(HEADER_1));
-        parse_span(header);
+        parse_span(header, p);
         wattroff(p, COLOR_PAIR(HEADER_1));
     }
     else if (level == HEADER_SETEXT_2)
     {
         wattron(p, COLOR_PAIR(HEADER_2));
-        parse_span(header);
+        parse_span(header, p);
         wattroff(p, COLOR_PAIR(HEADER_2));
     }
 }

@@ -19,11 +19,12 @@
 #ifndef MDV_HEADERS_H
 #define MDV_HEADERS_H
 
-#include "stdbool.h"
+#include <stdbool.h>
+#include "mdv.h"
 
 #define HEADER_SETEXT_1 1
 #define HEADER_SETEXT_2 2
 
-bool parse_headers(char **mkd, int ln);
+bool parse_headers(mkd_s *mkd, int ln);
 
 #endif //MDV_HEADERS_H

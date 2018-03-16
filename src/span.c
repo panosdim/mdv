@@ -25,7 +25,7 @@
  * Parse line for span elements
  * @param line The line containing span elements markup
  */
-void parse_span(char *line)
+void parse_span(char *line, WINDOW *p)
 {
     size_t len = strlen(line);
     int i = 0;

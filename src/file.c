@@ -26,17 +26,24 @@
 #include "file.h"
 #include "mdv.h"
 
-/* Always add at least this many bytes when extending the buffer. */
+// Always add at least this many bytes when extending the buffer.
 #define MIN_CHUNK 64
 
 /**
  * Read file and store lines in array of strings.
- * @param fp    Pointer to file
- * @param lines Number of lines that stored in array of strings
+ * @param mdfile Name of file to open
  * @return A mkd struct
  */
-mkd_s freadlines(FILE *fp)
+mkd_s freadlines(char *mdfile)
 {
+    FILE *fp = fopen(mdfile, "r");
+
+    if (fp == NULL)
+    {
+        fprintf(stderr, "Can't open file %s for reading\n", mdfile);
+        exit(EXIT_FAILURE);
+    }
+
     size_t n = 0;
     size_t array_size = MIN_CHUNK;
     ssize_t len = 0;
@@ -45,8 +52,8 @@ mkd_s freadlines(FILE *fp)
     char *line = NULL;
     int nr_lines = 0;
 
-    fseek(fp, 0, SEEK_SET); /* Rewind file position */
-    /* Allocate space to hold pointers to lines of file */
+    fseek(fp, 0, SEEK_SET); // Rewind file position
+    // Allocate space to hold pointers to lines of file
     char **flp = malloc(sizeof(char *) * array_size);
 
     if (flp == NULL)
@@ -57,7 +64,7 @@ mkd_s freadlines(FILE *fp)
         exit(EXIT_FAILURE);
     }
 
-    /* Read file line by line in array */
+    // Read file line by line in array
     while ((len = getline(&line, &n, fp)) != -1)
     {
         if (len > COLS)
@@ -107,12 +114,16 @@ mkd_s freadlines(FILE *fp)
         i++;
         nl_avail--;
 
-        /* Free line */
+        // Free line
         free(line);
         line = NULL;
         n = 0;
     }
 
-    mkd_s mkd = {.lines = flp, .len = i, .rows = nr_lines};
+    // Close markdown file
+    fclose(fp);
+
+    mkd_s mkd = {.lines = flp, .len = i, .rows = nr_lines, .filename = mdfile};
+
     return mkd;
 }

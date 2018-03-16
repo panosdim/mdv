@@ -20,11 +20,12 @@
 #define MDV_LISTS_H
 
 #include <stdbool.h>
+#include "mdv.h"
 
 #define INDENT_SPACES 4
 #define NEXT_LIST_PAR 4
 #define LIST_INDENT_SPC 2
 
-bool parse_lists(char **mkd, int ln);
+bool parse_lists(mkd_s *mkd, int ln);
 
 #endif //MDV_LISTS_H
